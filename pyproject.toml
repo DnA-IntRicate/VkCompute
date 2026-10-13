@@ -1,0 +1,12 @@
+[project]
+name = "VkCompute"
+version = "0.0.1"
+description = "Collection of algorithms implemented in Vulkan Compute."
+readme = "README.md"
+authors = [
+    { name = "Adam Foflonker" },
+]
+requires-python = ">=3.14"
+dependencies = [
+    "intrynzic-raptor>=0.0.13",
+]
