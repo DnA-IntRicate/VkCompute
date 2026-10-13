@@ -25,7 +25,4 @@ Config.EnablePch = false
 --
 -- NOTE: The 'PickCppVersion' function does a platform-specific mapping for the language standard
 -- E.g: gnu++ for Linux
-Config.CppVersion = PickCppVersion("23") -- TODO: Change to C++26/C++latest
-
--- The version of the C++ language toolset to use
-Config.CppToolsetVersion = "msc-v145"
+Config.CppVersion = PickCppVersion("latest")

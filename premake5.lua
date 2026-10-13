@@ -22,7 +22,6 @@ function _PrintDiagnostics()
         { "Dll Import/Export",  string.format("%s/%s", Config.DllImport, Config.DllExport)  },
         { "Precompiled HDR",    Config.EnablePch and "Enabled" or "Disabled"                },
         { "C++ Standard",       Config.CppVersion                                           },
-        { "C++ Toolset",        Config.CppToolsetVersion                                    },
     }
 
     print("")
@@ -76,8 +75,6 @@ workspace "VkCompute"
     }
 
     filter "language:C++"
-        toolset(Config.CppToolsetVersion)
-
         defines
         {
             "VKC_VERSION_MAJOR=" .. Version.Major,
