@@ -65,9 +65,13 @@ namespace vkc
 
     void VkcInstance::Initialize(const std::string& appName) noexcept
     {
+        std::println("Vulkan initializing...");
+
         if (volkInitialize() != VK_SUCCESS)
         {
             std::println("Volk initialization failed!");
+            volkFinalize();
+
             return;
         }
 
@@ -104,6 +108,8 @@ namespace vkc
         if (err != VK_SUCCESS)
         {
             std::println("Vulkan initialization failed!");
+            volkFinalize();
+
             return;
         }
 
@@ -117,6 +123,22 @@ namespace vkc
 
     void VkcInstance::Shutdown() noexcept
     {
+        std::println("Vulkan shutting-down...");
 
+        if (m_Device)
+        {
+            vkDestroyDevice(m_Device, nullptr);
+            m_Device = nullptr;
+            m_PhysicalDevice = nullptr;
+        }
+
+        if (m_Instance)
+        {
+            vkDestroyInstance(m_Instance, nullptr);
+            m_Instance = nullptr;
+        }
+
+        volkFinalize();
+        std::println("Vulkan shutdown.");
     }
 }  // namespace vkc

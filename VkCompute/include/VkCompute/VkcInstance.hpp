@@ -16,13 +16,13 @@ namespace vkc
         void Shutdown() noexcept;
 
         constexpr VkInstance GetInstance() const noexcept { return m_Instance; }
-        constexpr VkDevice GetDevice() const noexcept { return m_Device; }
         constexpr VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
+        constexpr VkDevice GetDevice() const noexcept { return m_Device; }
 
     private:
         VkInstance m_Instance             = nullptr;
-        VkDevice m_Device                 = nullptr;
         VkPhysicalDevice m_PhysicalDevice = nullptr;
+        VkDevice m_Device                 = nullptr;
 
         // VkDebugUtilsMessengerEXT m_DebugMessenger;
 
