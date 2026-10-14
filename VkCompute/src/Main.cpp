@@ -1,26 +1,14 @@
 #include <print>
+#include <VkCompute/VkcInstance.hpp>
 #include <Ilm/Ilm.hpp>
 
 
-template<typename... Args>
-constexpr void Eval(const Args&... args) noexcept
-{
-    (
-        [&]()
-        {
-            std::println("{}", args);
-        }(),
-        ...
-    );
-}
+vkc::VkcInstance g_Instance;
 
 int main(int argc, char** argv)
 {
     std::println("Hello world from VkCompute!");
-    Eval(21, 22, "wafawfg", 22.1f);
-
-    ilm::Ref<int> i = ilm::CreateRef<int>(21);
-    std::println("{}", *i);
+    g_Instance.Initialize("VkCompute-Demo");
 
     return 0;
 }
