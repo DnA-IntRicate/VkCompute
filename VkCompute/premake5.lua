@@ -9,7 +9,10 @@ project "VkCompute"
 
     includedirs
     {
-        IncludeDir.Ilm
+        IncludeDir.Ilm,
+        IncludeDir.VulkanSdk,
+        IncludeDir.VulkanVolk,
+        IncludeDir.SpirvReflect
     }
 
     filter "configurations:Dev"
@@ -23,3 +26,4 @@ project "VkCompute"
     filter "configurations:Release"
         CopyRuntime "On"
     filter {}
+
