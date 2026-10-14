@@ -12,4 +12,4 @@ Vendor = {}
 -- Vendor.Spdlog           = Paths.Root .. "/Vendor/ThirdParty/spdlog"
 
 -- Intrynzic submodules
--- Vendor.Ilm = Paths.Root .. "/Vendor/Intrynzic/Ilm"
+Vendor.Ilm = Paths.Root .. "/Vendor/Intrynzic/Ilm"

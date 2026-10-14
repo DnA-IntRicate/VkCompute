@@ -14,7 +14,7 @@ IncludeDir = {}
 -- IncludeDir.Spdlog           = Vendor.Spdlog .. "/include"
 
 -- Intrynzic submodule includes
--- IncludeDir.Ilm = Vendor.Ilm .. "/Ilm/src/include"
+IncludeDir.Ilm = Vendor.Ilm .. "/Ilm/src/include"
 
 -- Vulkan Sdk includes
 IncludeDir.VulkanSdk    = Env.VulkanSdk .. "/Include"

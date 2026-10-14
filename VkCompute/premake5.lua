@@ -7,6 +7,11 @@ project "VkCompute"
         DllApi = Config.DllImport
     }
 
+    includedirs
+    {
+        IncludeDir.Ilm
+    }
+
     filter "configurations:Dev"
         CopyRuntime "On"
     filter {}
