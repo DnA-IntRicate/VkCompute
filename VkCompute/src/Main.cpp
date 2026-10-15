@@ -12,8 +12,12 @@ int main(int argc, char** argv)
     g_Instance.Initialize("VkCompute-Demo");
     g_Instance.Shutdown();
 
-    vkc::Log(vkc::LogLevel::Info, "Hello {} {} - {}", "From VKC", "Log", 21);
+    std::println();
 
+    vkc::Trace("Tracing");
+    vkc::Info("Info-ing");
+    vkc::Warn("Warning");
+    vkc::Error("Error-ing");
 
     return 0;
 }
