@@ -9,7 +9,7 @@ require("../Config")
 IncludeDir = {}
 
 -- ThirdParty submodule includes
--- IncludeDir.Fmt              = Vendor.Fmt .. "/include"
+IncludeDir.Fmt              = Vendor.Fmt .. "/include"
 -- IncludeDir.Glm              = Vendor.Glm
 -- IncludeDir.Spdlog           = Vendor.Spdlog .. "/include"
 

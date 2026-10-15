@@ -74,17 +74,19 @@ workspace "VkCompute"
         "uv.lock"
     }
 
-    filter "language:C++"
-        defines
-        {
-            "VKC_VERSION_MAJOR=" .. Version.Major,
-            "VKC_VERSION_MINOR=" .. Version.Minor,
-            "VKC_VERSION_PATCH=" .. Version.Patch,
-            string.format("VKC_VERSION_STRING=\"%s\"", Version.String),
-            "VKC_DLL_IMPORT=" .. Config.DllImport,
-            "VKC_DLL_EXPORT=" .. Config.DllExport,
-            "VKC_ENABLE_PCH=" .. (Config.EnablePch and 1 or 0)
-        }
+    defines
+    {
+        "VKC_VERSION_MAJOR=" .. Version.Major,
+        "VKC_VERSION_MINOR=" .. Version.Minor,
+        "VKC_VERSION_PATCH=" .. Version.Patch,
+        string.format("VKC_VERSION_STRING=\"%s\"", Version.String),
+        "VKC_DLL_IMPORT=" .. Config.DllImport,
+        "VKC_DLL_EXPORT=" .. Config.DllExport,
+        "VKC_ENABLE_PCH=" .. (Config.EnablePch and 1 or 0)
+    }
+
+    filter "action:vs*"
+        buildoptions { "/utf-8" }
     filter {}
 
     filter "system:windows"
@@ -149,3 +151,4 @@ workspace "VkCompute"
     filter {}
 
     include "VkCompute"
+    include "Vendor"
