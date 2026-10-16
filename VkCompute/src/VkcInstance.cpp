@@ -1,9 +1,9 @@
 #include <VkCompute/VkcInstance.hpp>
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
+#include <algorithm>
 #include <array>
 #include <cstdint>
-#include <vector>
 
 
 namespace vkc
@@ -15,7 +15,7 @@ namespace vkc
         {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   vkc::Error("{}", pCallbackData->pMessage); break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: vkc::Warn("{}", pCallbackData->pMessage); break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    vkc::Info("{}", pCallbackData->pMessage); break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    vkc::Trace("{}", pCallbackData->pMessage); break;
             default:                                              VKC_ASSERT(false, "Unknown VkDebugUtilsMessageSeverityFlagBitsEXT level!"); break;
         }
 
@@ -196,21 +196,25 @@ namespace vkc
         vkc::Success("Initialized the Vulkan debug messenger.");
 #endif
 
-        // TODO(Adam): Create the graphics device here
+        std::vector<VkcPhysicalDevice> physicalDevices = VkcDevice::EnumeratePhysicalDevices(m_Instance);
 
-        // TODO(Adam): Create the command pool too!
+        // Check if compute is supported. We actualy want this assert to run even on Release builds.
+        const auto it = std::ranges::find_if(physicalDevices, [](const VkcPhysicalDevice& device) { return device.ComputeEnabled; });
+        vkc::Assert(it != physicalDevices.end(), "Vulkan compute is not supported on this machine!");
+
+        const VkcPhysicalDevice& physicalDevice = *it;
+        vkc::Warn("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Name);
+
+        m_Device = VkcDevice::Create(physicalDevice);
+        if (m_Device->Valid())
+            vkc::Success("Created logical device.");
     }
 
     void VkcInstance::Shutdown() noexcept
     {
         vkc::Warn("Vulkan shutting-down...");
 
-        if (m_Device)
-        {
-            vkDestroyDevice(m_Device, nullptr);
-            m_Device         = nullptr;
-            m_PhysicalDevice = nullptr;
-        }
+        m_Device = nullptr;
 
         if (m_DebugMessenger)
         {
@@ -226,5 +230,15 @@ namespace vkc
 
         volkFinalize();
         vkc::Success("Vulkan shutdown.");
+    }
+
+    const std::vector<const char*>& VkcInstance::GetEnabledExtensions() const noexcept
+    {
+        return g_Extensions;
+    }
+
+    const std::vector<const char*>& VkcInstance::GetEnabledLayers() const noexcept
+    {
+        return g_Layers;
     }
 }  // namespace vkc
