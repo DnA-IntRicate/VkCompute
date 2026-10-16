@@ -1,4 +1,5 @@
 #pragma once
+#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
 #include <cstdint>
@@ -94,5 +95,8 @@ namespace vkc
     private:
         VkcPhysicalDevice m_PhysicalDevice;
         VkDevice m_Device = nullptr;
+
+        static_assert(VkcObject<VkcDevice>);
+        static_assert(VkcCreatable<VkcDevice, const VkcPhysicalDevice&>);
     };
 }  // namespace vkc
