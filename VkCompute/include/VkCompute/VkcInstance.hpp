@@ -3,6 +3,7 @@
 #include <Ilm/Ilm.hpp>
 #include <Volk.h>
 #include <string>
+#include <vector>
 
 
 namespace vkc
@@ -18,6 +19,9 @@ namespace vkc
 
         constexpr VkInstance GetInstance() const noexcept { return m_Instance; }
         constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
+
+        const std::vector<const char*>& GetEnabledExtensions() const noexcept;
+        const std::vector<const char*>& GetEnabledLayers() const noexcept;
 
     private:
         VkInstance m_Instance                     = nullptr;

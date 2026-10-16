@@ -29,22 +29,20 @@ namespace vkc
         uint32_t ComputeQueueFamilyIndex = 0;
     };
 
+    // TODO(Adam): Make a vulkan interface that exports Valid and bool operators
     class VkcDevice
     {
     public:
-        // Don't default this!
-        // Add a dtor
-        constexpr VkcDevice() = default;
-        ~VkcDevice();
-
-        // Maybe move this to the ctor?
-        // void Create() noexcept;
+        VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept;
+        ~VkcDevice() noexcept;
 
         void Destroy() noexcept;
 
         constexpr VkcPhysicalDevice GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
         constexpr uint32_t GetDeviceIndex() const noexcept { return GetPhysicalDevice().Index; }
         constexpr VkDevice GetDevice() const noexcept { return m_Device; }
+
+        constexpr bool Valid() const noexcept { return (bool)m_Device; }
 
     public:
         static ilm::Ref<VkcDevice> Create(const VkcPhysicalDevice& physicalDevice) noexcept;

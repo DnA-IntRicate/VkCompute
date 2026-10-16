@@ -1,9 +1,58 @@
 #include <VkCompute/VkcDevice.hpp>
+#include <VkCompute/Assert.hpp>
+#include <VkCompute/Log.hpp>
 #include <ranges>
 
 
 namespace vkc
 {
+    constexpr float COMPUTE_QUEUE_PRIORITY = 1.0f;
+
+    VkcDevice::VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept
+        : m_PhysicalDevice(physicalDevice)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.pNext            = nullptr;
+        queueCreateInfo.flags            = 0;
+        queueCreateInfo.queueFamilyIndex = m_PhysicalDevice.ComputeQueueFamilyIndex;
+        queueCreateInfo.queueCount       = 1;
+        queueCreateInfo.pQueuePriorities = &COMPUTE_QUEUE_PRIORITY;
+
+        VkDeviceCreateInfo deviceCreateInfo{};
+        deviceCreateInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        deviceCreateInfo.pNext                = nullptr;
+        deviceCreateInfo.flags                = 0;
+        deviceCreateInfo.queueCreateInfoCount = 1;
+        deviceCreateInfo.pQueueCreateInfos    = &queueCreateInfo;
+        deviceCreateInfo.pEnabledFeatures     = nullptr;
+        VkResult err                          = vkCreateDevice(m_PhysicalDevice.Handle, &deviceCreateInfo, nullptr, &m_Device);
+
+        // We actualy want this assert to run even on Release builds.
+        vkc::Assert(err == VK_SUCCESS, "Failed to create logical device!");
+    }
+
+    VkcDevice::~VkcDevice() noexcept
+    {
+        Destroy();
+    }
+
+    void VkcDevice::Destroy() noexcept
+    {
+        if (m_Device)
+        {
+            vkDestroyDevice(m_Device, nullptr);
+            m_Device = nullptr;
+
+            vkc::Warn("Destroyed logical device instance of device '{}'.", m_PhysicalDevice.Name);
+        }
+    }
+
+    ilm::Ref<VkcDevice> VkcDevice::Create(const VkcPhysicalDevice& physicalDevice) noexcept
+    {
+        return ilm::CreateRef<VkcDevice>(physicalDevice);
+    }
+
     std::vector<VkcPhysicalDevice> VkcDevice::EnumeratePhysicalDevices(VkInstance instance) noexcept
     {
         uint32_t deviceCount;

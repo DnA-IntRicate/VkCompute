@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <vector>
 
 
 namespace vkc
@@ -16,7 +15,7 @@ namespace vkc
         {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   vkc::Error("{}", pCallbackData->pMessage); break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: vkc::Warn("{}", pCallbackData->pMessage); break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    vkc::Info("{}", pCallbackData->pMessage); break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    vkc::Trace("{}", pCallbackData->pMessage); break;
             default:                                              VKC_ASSERT(false, "Unknown VkDebugUtilsMessageSeverityFlagBitsEXT level!"); break;
         }
 
@@ -204,7 +203,11 @@ namespace vkc
         vkc::Assert(it != physicalDevices.end(), "Vulkan compute is not supported on this machine!");
 
         const VkcPhysicalDevice& physicalDevice = *it;
-        vkc::Info("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Name);
+        vkc::Warn("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Name);
+
+        m_Device = VkcDevice::Create(physicalDevice);
+        if (m_Device->Valid())
+            vkc::Success("Created logical device.");
 
         // TODO(Adam): Create the command pool too!
     }
@@ -213,12 +216,7 @@ namespace vkc
     {
         vkc::Warn("Vulkan shutting-down...");
 
-        // if (m_Device)
-        // {
-        //     vkDestroyDevice(m_Device, nullptr);
-        //     m_Device         = nullptr;
-        //     m_PhysicalDevice = nullptr;
-        // }
+        m_Device = nullptr;
 
         if (m_DebugMessenger)
         {
@@ -234,5 +232,15 @@ namespace vkc
 
         volkFinalize();
         vkc::Success("Vulkan shutdown.");
+    }
+
+    const std::vector<const char*>& VkcInstance::GetEnabledExtensions() const noexcept
+    {
+        return g_Extensions;
+    }
+
+    const std::vector<const char*>& VkcInstance::GetEnabledLayers() const noexcept
+    {
+        return g_Layers;
     }
 }  // namespace vkc
