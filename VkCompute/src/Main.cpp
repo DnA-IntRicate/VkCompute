@@ -1,3 +1,4 @@
+#include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
 #include <VkCompute/VkcInstance.hpp>
 
@@ -16,6 +17,9 @@ int main(int argc, char** argv)
     vkc::Error("Error-ing");
     vkc::Critical("I am critical!");
     vkc::Success("Something went right!");
+
+    // Assertions
+    // VKC_ASSERT(false, "This assertion failed for some reason!");
 
     return 0;
 }

@@ -58,8 +58,10 @@ namespace vkc
 
     static constexpr std::array WANTED_LAYERS = {
 #if defined(VKC_DEBUG) || defined(VKC_DEV)
-        "VK_LAYER_LUNARG_standard_validation", "VK_LAYER_KHRONOS_validation"
+        "VK_LAYER_LUNARG_standard_validation",
+        "VK_LAYER_KHRONOS_validation"
 #endif
+        ""  // No layers in release mode
     };
 
     // Find which of the Vulkan extensions we want enabled are actually supported by this device
