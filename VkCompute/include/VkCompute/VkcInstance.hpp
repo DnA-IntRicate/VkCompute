@@ -1,6 +1,8 @@
 #pragma once
-#include <string>
+#include "VkcDevice.hpp"
+#include <Ilm/Ilm.hpp>
 #include <Volk.h>
+#include <string>
 
 
 namespace vkc
@@ -15,13 +17,12 @@ namespace vkc
         void Shutdown() noexcept;
 
         constexpr VkInstance GetInstance() const noexcept { return m_Instance; }
-        constexpr VkPhysicalDevice GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
-        constexpr VkDevice GetDevice() const noexcept { return m_Device; }
+        constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
 
     private:
         VkInstance m_Instance                     = nullptr;
-        VkPhysicalDevice m_PhysicalDevice         = nullptr;
-        VkDevice m_Device                         = nullptr;
         VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
+
+        ilm::Ref<VkcDevice> m_Device;
     };
 }  // namespace vkc

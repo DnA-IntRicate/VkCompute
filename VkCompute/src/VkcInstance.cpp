@@ -1,6 +1,7 @@
 #include <VkCompute/VkcInstance.hpp>
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -196,7 +197,14 @@ namespace vkc
         vkc::Success("Initialized the Vulkan debug messenger.");
 #endif
 
-        // TODO(Adam): Create the graphics device here
+        std::vector<VkcPhysicalDevice> physicalDevices = VkcDevice::EnumeratePhysicalDevices(m_Instance);
+
+        // Check if compute is supported. We actualy want this assert to run even on Release builds.
+        const auto it = std::ranges::find_if(physicalDevices, [](const VkcPhysicalDevice& device) { return device.ComputeEnabled; });
+        vkc::Assert(it != physicalDevices.end(), "Vulkan compute is not supported on this machine!");
+
+        const VkcPhysicalDevice& physicalDevice = *it;
+        vkc::Info("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Name);
 
         // TODO(Adam): Create the command pool too!
     }
@@ -205,12 +213,12 @@ namespace vkc
     {
         vkc::Warn("Vulkan shutting-down...");
 
-        if (m_Device)
-        {
-            vkDestroyDevice(m_Device, nullptr);
-            m_Device         = nullptr;
-            m_PhysicalDevice = nullptr;
-        }
+        // if (m_Device)
+        // {
+        //     vkDestroyDevice(m_Device, nullptr);
+        //     m_Device         = nullptr;
+        //     m_PhysicalDevice = nullptr;
+        // }
 
         if (m_DebugMessenger)
         {
