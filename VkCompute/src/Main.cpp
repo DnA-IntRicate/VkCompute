@@ -19,6 +19,7 @@ int main(int argc, char** argv)
     vkc::Warn("Warning");
     vkc::Error("Error-ing");
     vkc::Critical("I am critical!");
+    vkc::Success("Something went right!");
 
     return 0;
 }

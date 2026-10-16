@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <fmt/color.h>
+#include <cstdio>
 #include <ctime>
 #include <iterator>
 #include <utility>
@@ -15,7 +16,8 @@ namespace vkc
         Info,
         Warn,
         Error,
-        Critical
+        Critical,
+        Success
     };
 
     constexpr const char* ToString(LogLevel level) noexcept
@@ -27,6 +29,7 @@ namespace vkc
             case LogLevel::Warn:     return "WARN";
             case LogLevel::Error:    return "ERROR";
             case LogLevel::Critical: return "CRITICAL";
+            case LogLevel::Success:  return "SUCCESS";
         }
 
         return "UNKNOWN";
@@ -57,6 +60,8 @@ namespace vkc
             ts |= fmt::fg(fmt::color::red);
         else if constexpr (Level == LogLevel::Critical)
             ts |= fmt::fg(fmt::color::white) | fmt::bg(fmt::color::red);
+        else if constexpr (Level == LogLevel::Success)
+            ts |= fmt::fg(fmt::color::lime_green);
 
         constexpr const char* levelStr = ToString(Level);
 
@@ -99,5 +104,11 @@ namespace vkc
     void Critical(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Critical>(fmt, std::forward<Args>(args)...);
+    }
+
+    template<fmt::formattable... Args>
+    void Success(fmt::format_string<Args...> fmt, Args&&... args)
+    {
+        Log<LogLevel::Success>(fmt, std::forward<Args>(args)...);
     }
 }  // namespace vkc
