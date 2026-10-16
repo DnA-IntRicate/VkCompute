@@ -1,6 +1,7 @@
 #include <VkCompute/VkcInstance.hpp>
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
+#include <vma/vk_mem_alloc.h>
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -106,7 +107,7 @@ namespace vkc
     }
 
     // Helper function to setup the Vulkan debug messenger
-    inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    static inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
         const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) noexcept
     {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -117,12 +118,58 @@ namespace vkc
     }
 
     // Helper function to destroy the Vulkan debug messenger
-    inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+    static inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
         const VkAllocationCallbacks* pAllocator) noexcept
     {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func)
             func(instance, debugMessenger, pAllocator);
+    }
+
+    static inline VkResult CreateVmaAllocator(VkInstance instance, const ilm::Ref<VkcDevice>& device, VmaAllocator& allocator) noexcept
+    {
+        VmaVulkanFunctions functions{};
+        functions.vkGetInstanceProcAddr                   = vkGetInstanceProcAddr;
+        functions.vkGetDeviceProcAddr                     = vkGetDeviceProcAddr;
+        functions.vkGetPhysicalDeviceProperties           = vkGetPhysicalDeviceProperties;
+        functions.vkGetPhysicalDeviceMemoryProperties     = vkGetPhysicalDeviceMemoryProperties;
+        functions.vkAllocateMemory                        = vkAllocateMemory;
+        functions.vkFreeMemory                            = vkFreeMemory;
+        functions.vkMapMemory                             = vkMapMemory;
+        functions.vkUnmapMemory                           = vkUnmapMemory;
+        functions.vkFlushMappedMemoryRanges               = vkFlushMappedMemoryRanges;
+        functions.vkInvalidateMappedMemoryRanges          = vkInvalidateMappedMemoryRanges;
+        functions.vkBindBufferMemory                      = vkBindBufferMemory;
+        functions.vkBindImageMemory                       = vkBindImageMemory;
+        functions.vkGetBufferMemoryRequirements           = vkGetBufferMemoryRequirements;
+        functions.vkGetImageMemoryRequirements            = vkGetImageMemoryRequirements;
+        functions.vkCreateBuffer                          = vkCreateBuffer;
+        functions.vkDestroyBuffer                         = vkDestroyBuffer;
+        functions.vkCreateImage                           = vkCreateImage;
+        functions.vkDestroyImage                          = vkDestroyImage;
+        functions.vkCmdCopyBuffer                         = vkCmdCopyBuffer;
+        functions.vkGetBufferMemoryRequirements2KHR       = vkGetBufferMemoryRequirements2KHR;
+        functions.vkGetImageMemoryRequirements2KHR        = vkGetImageMemoryRequirements2KHR;
+        functions.vkBindBufferMemory2KHR                  = vkBindBufferMemory2KHR;
+        functions.vkBindImageMemory2KHR                   = vkBindImageMemory2KHR;
+        functions.vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR;
+        functions.vkGetDeviceBufferMemoryRequirements     = vkGetDeviceBufferMemoryRequirements;
+        functions.vkGetDeviceImageMemoryRequirements      = vkGetDeviceImageMemoryRequirements;
+
+        VmaAllocatorCreateInfo allocatorInfo{};
+        allocatorInfo.flags                          = VmaAllocatorCreateFlags();
+        allocatorInfo.physicalDevice                 = device->GetPhysicalDevice().Handle;
+        allocatorInfo.device                         = device->GetDevice();
+        allocatorInfo.preferredLargeHeapBlockSize    = 0;
+        allocatorInfo.pAllocationCallbacks           = nullptr;
+        allocatorInfo.pDeviceMemoryCallbacks         = nullptr;
+        allocatorInfo.pHeapSizeLimit                 = nullptr;
+        allocatorInfo.pVulkanFunctions               = &functions;
+        allocatorInfo.instance                       = instance;
+        allocatorInfo.vulkanApiVersion               = VK_API_VERSION_1_4;
+        allocatorInfo.pTypeExternalMemoryHandleTypes = nullptr;
+
+        return vmaCreateAllocator(&allocatorInfo, &allocator);
     }
 
     void VkcInstance::Initialize(const std::string& appName) noexcept
@@ -189,8 +236,7 @@ namespace vkc
         debugCreateInfo.pfnUserCallback = VulkanDebugMessageCallback;
         debugCreateInfo.pUserData       = nullptr;
 
-        err = CreateDebugUtilsMessengerEXT(m_Instance, &debugCreateInfo, nullptr, &m_DebugMessenger);
-        if ((err != VK_SUCCESS) || !m_DebugMessenger)
+        if (CreateDebugUtilsMessengerEXT(m_Instance, &debugCreateInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
             vkc::Error("Failed to setup Vulkan debug messenger!");
 
         vkc::Success("Initialized the Vulkan debug messenger.");
@@ -208,6 +254,9 @@ namespace vkc
         m_Device = VkcDevice::Create(physicalDevice);
         if (m_Device->Valid())
             vkc::Success("Created logical device.");
+
+        vkc::Assert(CreateVmaAllocator(m_Instance, m_Device, m_Allocator) == VK_SUCCESS, "Failed to create VMA allocator!");
+        vkc::Success("Created VMA allocator.");
     }
 
     void VkcInstance::Shutdown() noexcept
@@ -220,6 +269,12 @@ namespace vkc
         {
             DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
             m_DebugMessenger = nullptr;
+        }
+
+        if (m_Allocator)
+        {
+            vmaDestroyAllocator(m_Allocator);
+            m_Allocator = nullptr;
         }
 
         if (m_Instance)

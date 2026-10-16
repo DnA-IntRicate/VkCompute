@@ -1,6 +1,7 @@
 #pragma once
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
+#include <vma/vk_mem_alloc.h>
 #include <Volk.h>
 #include <string>
 #include <vector>
@@ -18,6 +19,9 @@ namespace vkc
         void Shutdown() noexcept;
 
         constexpr VkInstance GetInstance() const noexcept { return m_Instance; }
+
+        constexpr VmaAllocator GetAllocator() const noexcept { return m_Allocator; }
+
         constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
 
         const std::vector<const char*>& GetEnabledExtensions() const noexcept;
@@ -26,6 +30,7 @@ namespace vkc
     private:
         VkInstance m_Instance                     = nullptr;
         VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
+        VmaAllocator m_Allocator                  = nullptr;
 
         ilm::Ref<VkcDevice> m_Device;
     };
