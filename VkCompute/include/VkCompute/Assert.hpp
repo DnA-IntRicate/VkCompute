@@ -15,7 +15,7 @@ namespace vkc
      * @brief Handles assertions.
      * Rather use the macro `VKC_ASSERT` since it gets disabled during release.
      */
-    inline void Assert(bool cond, std::string_view msg, const std::source_location& loc = std::source_location::current()) noexcept
+    inline void Assert(bool cond, std::string_view msg = "", const std::source_location& loc = std::source_location::current()) noexcept
     {
         if (cond)
             return;
@@ -44,7 +44,7 @@ namespace vkc
 }  // namespace vkc
 
 #if defined(VKC_DEBUG) || defined(VKC_DEV)
-#    define VKC_ASSERT(cond, msg) vkc::Assert(cond, msg)
+#    define VKC_ASSERT(cond, msg) ::vkc::Assert(cond, msg)
 #else
 #    define VKC_ASSERT(cond, msg)
 #endif  // VKC_DEBUG
