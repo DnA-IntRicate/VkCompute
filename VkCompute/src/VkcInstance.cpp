@@ -1,9 +1,7 @@
 #include <VkCompute/VkcInstance.hpp>
-
-// TODO(Adam): Add spdlog + fmt (or just fmt) and write logging functionality!
+#include <VkCompute/Log.hpp>
 #include <array>
 #include <cstdint>
-#include <print>
 #include <vector>
 
 
@@ -108,11 +106,11 @@ namespace vkc
 
     void VkcInstance::Initialize(const std::string& appName) noexcept
     {
-        std::println("Vulkan initializing...");
+        vkc::Info("Vulkan initializing...");
 
         if (volkInitialize() != VK_SUCCESS)
         {
-            std::println("Volk initialization failed!");
+            vkc::Critical("Volk initialization failed!");
             volkFinalize();
 
             return;
@@ -150,14 +148,14 @@ namespace vkc
 
         if (err != VK_SUCCESS)
         {
-            std::println("Vulkan initialization failed!");
+            vkc::Critical("Vulkan initialization failed!");
             volkFinalize();
 
             return;
         }
 
         volkLoadInstance(m_Instance);
-        std::println("Vulkan initialization succeeded.");
+        vkc::Success("Vulkan initialized.");
 
         // TODO(Adam): Create the graphics device here
 
@@ -166,7 +164,7 @@ namespace vkc
 
     void VkcInstance::Shutdown() noexcept
     {
-        std::println("Vulkan shutting-down...");
+        vkc::Warn("Vulkan shutting-down...");
 
         if (m_Device)
         {
@@ -182,6 +180,6 @@ namespace vkc
         }
 
         volkFinalize();
-        std::println("Vulkan shutdown.");
+        vkc::Success("Vulkan shutdown.");
     }
 }  // namespace vkc
