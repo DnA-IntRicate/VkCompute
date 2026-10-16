@@ -43,7 +43,6 @@ namespace vkc
         uint32_t ComputeQueueFamilyIndex = 0;
     };
 
-    // TODO(Adam): Make a Vulkan interface that exports Valid and bool operators
     /**
      * @brief A wrapper around a Vulkan logical graphics/compute device.
      */
