@@ -42,7 +42,7 @@ namespace vkc
     }
 
     /**
-     * Returns the current time.
+     * @brief Returns the current time.
      */
     inline std::tm Timestamp() noexcept
     {
