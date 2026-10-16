@@ -7,16 +7,19 @@ project "VkCompute"
         DllApi = Config.DllImport
     }
 
-    includedirs
+    externalincludedirs
     {
+        IncludeDir.Fmt,
         IncludeDir.Ilm,
         IncludeDir.VulkanSdk,
         IncludeDir.VulkanVolk,
         IncludeDir.SpirvReflect
     }
+    externalwarnings "Off"
 
     links
     {
+        "fmt",
         path.join(LibDir.VulkanSdk, Lib.Volk)
     }
 

@@ -7,7 +7,7 @@ require("../Paths")
 Vendor = {}
 
 -- ThirdParty submodules
--- Vendor.Fmt              = Paths.Root .. "/Vendor/ThirdParty/fmt"
+Vendor.Fmt              = Paths.Root .. "/Vendor/ThirdParty/fmt"
 -- Vendor.Glm              = Paths.Root .. "/Vendor/ThirdParty/glm"
 -- Vendor.Spdlog           = Paths.Root .. "/Vendor/ThirdParty/spdlog"
 

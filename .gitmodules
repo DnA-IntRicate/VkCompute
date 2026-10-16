@@ -1,3 +1,6 @@
 [submodule "Vendor/Intrynzic/Ilm"]
 	path = Vendor/Intrynzic/Ilm
 	url = https://github.com/intrynzic/Ilm
+[submodule "Vendor/ThirdParty/fmt"]
+	path = Vendor/ThirdParty/fmt
+	url = https://github.com/DnA-IntRicate/fmt
