@@ -30,6 +30,20 @@ namespace vkc
 
         // We actualy want this assert to run even on Release builds.
         vkc::Assert(err == VK_SUCCESS, "Failed to create logical device!");
+
+        // Get compute queue from device
+        vkGetDeviceQueue(m_Device, GetComputeQueueFamilyIndex(), 0, &m_ComputeQueue);
+
+        // Create device command pool
+        VkCommandPoolCreateInfo poolCreateInfo{};
+        poolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolCreateInfo.pNext            = nullptr;
+        poolCreateInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolCreateInfo.queueFamilyIndex = GetComputeQueueFamilyIndex();
+        err                             = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &m_CommandPool);
+
+        // We actualy want this assert to run even on Release builds.
+        vkc::Assert(err == VK_SUCCESS, "Failed to create logical device command pool!");
     }
 
     VkcDevice::~VkcDevice() noexcept
@@ -39,10 +53,17 @@ namespace vkc
 
     void VkcDevice::Destroy() noexcept
     {
+        if (m_CommandPool)
+        {
+            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+            m_CommandPool = nullptr;
+        }
+
         if (m_Device)
         {
             vkDestroyDevice(m_Device, nullptr);
-            m_Device = nullptr;
+            m_Device       = nullptr;
+            m_ComputeQueue = nullptr;
 
             vkc::Warn("Destroyed logical device instance of device '{}'.", m_PhysicalDevice.Name);
         }
@@ -81,7 +102,7 @@ namespace vkc
                 if ((qf.queueCount > 0) && (qf.queueFlags & VK_QUEUE_COMPUTE_BIT))
                 {
                     computeEnabled          = true;
-                    computeQueueFamilyIndex = queueFamilyIndex;
+                    computeQueueFamilyIndex = static_cast<uint32_t>(queueFamilyIndex);
                     break;
                 }
             }

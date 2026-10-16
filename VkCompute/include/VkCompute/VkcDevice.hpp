@@ -60,7 +60,7 @@ namespace vkc
         /**
          * @brief Get the VkcPhysicalDevice that this instance was created off of.
          */
-        constexpr VkcPhysicalDevice GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
+        constexpr const VkcPhysicalDevice& GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
 
         /**
          * @brief Get the physical index of this device.
@@ -68,15 +68,29 @@ namespace vkc
         constexpr uint32_t GetDeviceIndex() const noexcept { return GetPhysicalDevice().Index; }
 
         /**
+         * @brief Get the index of this device's compute queue family.
+         */
+        constexpr uint32_t GetComputeQueueFamilyIndex() const noexcept { return GetPhysicalDevice().ComputeQueueFamilyIndex; }
+
+        /**
          * @brief Get the Vulkan handle of this logical device instance.
-         *
          */
         constexpr VkDevice GetDevice() const noexcept { return m_Device; }
 
         /**
+         * @brief Get the Vulkan handle of this instance's compute queue.
+         */
+        constexpr VkQueue GetComputeQueue() const noexcept { return m_ComputeQueue; }
+
+        /**
+         * @brief Get the Vulkan handle of this instance's command pool.
+         */
+        constexpr VkCommandPool GetCommandPool() const noexcept { return m_CommandPool; }
+
+        /**
          * @brief Checks if this device is valid.
          */
-        constexpr bool Valid() const noexcept { return (bool)m_Device; }
+        constexpr bool Valid() const noexcept { return (bool)m_Device && (bool)m_ComputeQueue; }
 
     public:
         /**
@@ -93,9 +107,11 @@ namespace vkc
 
     private:
         VkcPhysicalDevice m_PhysicalDevice;
-        VkDevice m_Device = nullptr;
-
-        static_assert(VkcObject<VkcDevice>);
-        static_assert(VkcCreatable<VkcDevice, const VkcPhysicalDevice&>);
+        VkDevice m_Device           = nullptr;
+        VkQueue m_ComputeQueue      = nullptr;
+        VkCommandPool m_CommandPool = nullptr;
     };
+
+    static_assert(VkcObject<VkcDevice>);
+    static_assert(VkcCreatable<VkcDevice, const VkcPhysicalDevice&>);
 }  // namespace vkc

@@ -208,8 +208,6 @@ namespace vkc
         m_Device = VkcDevice::Create(physicalDevice);
         if (m_Device->Valid())
             vkc::Success("Created logical device.");
-
-        // TODO(Adam): Create the command pool too!
     }
 
     void VkcInstance::Shutdown() noexcept
