@@ -1,4 +1,5 @@
 #include <VkCompute/VkcInstance.hpp>
+#include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
 #include <array>
 #include <cstdint>
@@ -7,21 +8,19 @@
 
 namespace vkc
 {
-    /*
     static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
     {
         switch (messageSeverity)
         {
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   VKC_VULKAN_CRITICAL(pCallbackData->pMessage); break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: VKC_VULKAN_ERROR(pCallbackData->pMessage); break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    VKC_VULKAN_INFO(pCallbackData->pMessage); break;
-            default:                                              VKC_CORE_ASSERT(false, "Unknown VkDebugUtilsMessageSeverityFlagBitsEXT level!"); break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   vkc::Error("{}", pCallbackData->pMessage); break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: vkc::Warn("{}", pCallbackData->pMessage); break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    vkc::Info("{}", pCallbackData->pMessage); break;
+            default:                                              VKC_ASSERT(false, "Unknown VkDebugUtilsMessageSeverityFlagBitsEXT level!"); break;
         }
 
         return VK_FALSE;
     }
-    */
 
     static std::vector<const char*> g_Extensions;
     static std::vector<VkExtensionProperties> g_InstalledExtensions;
@@ -106,6 +105,26 @@ namespace vkc
         return res;
     }
 
+    // Helper function to setup the Vulkan debug messenger
+    inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+        const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) noexcept
+    {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        if (func)
+            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    // Helper function to destroy the Vulkan debug messenger
+    inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+        const VkAllocationCallbacks* pAllocator) noexcept
+    {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+        if (func)
+            func(instance, debugMessenger, pAllocator);
+    }
+
     void VkcInstance::Initialize(const std::string& appName) noexcept
     {
         vkc::Info("Vulkan initializing...");
@@ -159,6 +178,24 @@ namespace vkc
         volkLoadInstance(m_Instance);
         vkc::Success("Vulkan initialized.");
 
+        // Initialize the Vulkan debug messenger for debug/dev builds
+#if defined(VKC_DEBUG) || defined(VKC_DEV)
+        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+        debugCreateInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+                                          | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugCreateInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+                                          | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugCreateInfo.pfnUserCallback = VulkanDebugMessageCallback;
+        debugCreateInfo.pUserData       = nullptr;
+
+        err = CreateDebugUtilsMessengerEXT(m_Instance, &debugCreateInfo, nullptr, &m_DebugMessenger);
+        if ((err != VK_SUCCESS) || !m_DebugMessenger)
+            vkc::Error("Failed to setup Vulkan debug messenger!");
+
+        vkc::Success("Initialized the Vulkan debug messenger.");
+#endif
+
         // TODO(Adam): Create the graphics device here
 
         // TODO(Adam): Create the command pool too!
@@ -173,6 +210,12 @@ namespace vkc
             vkDestroyDevice(m_Device, nullptr);
             m_Device         = nullptr;
             m_PhysicalDevice = nullptr;
+        }
+
+        if (m_DebugMessenger)
+        {
+            DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+            m_DebugMessenger = nullptr;
         }
 
         if (m_Instance)

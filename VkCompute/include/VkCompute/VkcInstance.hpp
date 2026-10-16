@@ -19,10 +19,9 @@ namespace vkc
         constexpr VkDevice GetDevice() const noexcept { return m_Device; }
 
     private:
-        VkInstance m_Instance             = nullptr;
-        VkPhysicalDevice m_PhysicalDevice = nullptr;
-        VkDevice m_Device                 = nullptr;
-
-        // VkDebugUtilsMessengerEXT m_DebugMessenger;
+        VkInstance m_Instance                     = nullptr;
+        VkPhysicalDevice m_PhysicalDevice         = nullptr;
+        VkDevice m_Device                         = nullptr;
+        VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
     };
 }  // namespace vkc
