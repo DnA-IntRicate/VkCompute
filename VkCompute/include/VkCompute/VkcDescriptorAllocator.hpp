@@ -53,7 +53,7 @@ namespace vkc
         /**
          * @brief Checks if this descriptor allocator is valid.
          */
-        constexpr bool Valid() const noexcept { return m_Device->Valid() && (bool)m_CurrentPool; }
+        constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && (bool)m_CurrentPool; }
 
     public:
         /**

@@ -107,7 +107,7 @@ namespace vkc
 
     public:
         /**
-         * @brief Create a new VkcDevice.
+         * @brief Creates a new VkcDevice.
          */
         static ilm::Ref<VkcDevice> Create(const VkcPhysicalDevice& physicalDevice) noexcept;
 

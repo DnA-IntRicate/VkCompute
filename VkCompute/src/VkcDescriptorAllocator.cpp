@@ -36,6 +36,9 @@ namespace vkc
             if (pool)
                 vkDestroyDescriptorPool(m_Device->GetDevice(), pool, nullptr);
         }
+
+        m_CurrentPool = nullptr;
+        m_Device = nullptr;
     }
 
     bool VkcDescriptorAllocator::AllocateSet(const VkDescriptorSetLayout& layout, VkDescriptorSet& outDstSet) noexcept
