@@ -52,8 +52,16 @@ namespace vkc
         VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept;
         ~VkcDevice() noexcept;
 
+        // Allow copy-assignment by ilm::Ref only
+        constexpr VkcDevice(const VkcDevice&)            = delete;
+        constexpr VkcDevice& operator=(const VkcDevice&) = delete;
+
+        // Allow move-assignment by ilm::Ref only
+        constexpr VkcDevice(VkcDevice&&)            = delete;
+        constexpr VkcDevice& operator=(VkcDevice&&) = delete;
+
         /**
-         * @brief Destroy this device.
+         * @brief Destroys this device.
          */
         void Destroy() noexcept;
 
