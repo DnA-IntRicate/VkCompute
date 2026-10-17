@@ -25,7 +25,9 @@ project "VkCompute"
 
     defines
     {
-        "VK_NO_PROTOTYPES"
+        "VK_NO_PROTOTYPES",
+        "VMA_STATIC_VULKAN_FUNCTIONS=" .. (Config.DynamicLinking and 0 or 1),
+        "VMA_DYNAMIC_VULKAN_FUNCTIONS=" .. (Config.DynamicLinking and 1 or 0)
     }
 
     filter "system:windows"
