@@ -69,6 +69,11 @@ namespace vkc
         }
     }
 
+    void VkcDevice::WaitIdle() const noexcept
+    {
+        vkDeviceWaitIdle(m_Device);
+    }
+
     ilm::Ref<VkcDevice> VkcDevice::Create(const VkcPhysicalDevice& physicalDevice) noexcept
     {
         return ilm::CreateRef<VkcDevice>(physicalDevice);

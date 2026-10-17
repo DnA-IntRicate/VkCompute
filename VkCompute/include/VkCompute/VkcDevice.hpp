@@ -66,6 +66,11 @@ namespace vkc
         void Destroy() noexcept;
 
         /**
+         * @brief Blocks the CPU until all previously submitted work on the logical device has completed.
+         */
+        void WaitIdle() const noexcept;
+
+        /**
          * @brief Get the VkcPhysicalDevice that this instance was created off of.
          */
         constexpr const VkcPhysicalDevice& GetPhysicalDevice() const noexcept { return m_PhysicalDevice; }
