@@ -52,10 +52,23 @@ namespace vkc
         VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept;
         ~VkcDevice() noexcept;
 
+        // Allow copy-assignment by ilm::Ref only
+        constexpr VkcDevice(const VkcDevice&)            = delete;
+        constexpr VkcDevice& operator=(const VkcDevice&) = delete;
+
+        // Allow move-assignment by ilm::Ref only
+        constexpr VkcDevice(VkcDevice&&)            = delete;
+        constexpr VkcDevice& operator=(VkcDevice&&) = delete;
+
         /**
-         * @brief Destroy this device.
+         * @brief Destroys this device.
          */
         void Destroy() noexcept;
+
+        /**
+         * @brief Blocks the CPU until all previously submitted work on the logical device has completed.
+         */
+        void WaitIdle() const noexcept;
 
         /**
          * @brief Get the VkcPhysicalDevice that this instance was created off of.
@@ -94,7 +107,7 @@ namespace vkc
 
     public:
         /**
-         * @brief Create a new VkcDevice.
+         * @brief Creates a new VkcDevice.
          */
         static ilm::Ref<VkcDevice> Create(const VkcPhysicalDevice& physicalDevice) noexcept;
 
