@@ -32,7 +32,7 @@ namespace vkc
          */
         size_t Hash() const noexcept
         {
-            size_t seed = Bindings.size();
+            size_t seed        = Bindings.size();
             const auto combine = [&seed](size_t value) { seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2); };
 
             for (const auto& binding : Bindings)
@@ -84,7 +84,11 @@ namespace vkc
     class VkcDescriptorLayoutCache
     {
     public:
-        VkcDescriptorLayoutCache() = default;
+        constexpr VkcDescriptorLayoutCache(const ilm::Ref<VkcDevice>& device) noexcept
+            : m_Device(device)
+        {
+        }
+
         ~VkcDescriptorLayoutCache() noexcept;
 
         // Allow copy-assignment by ilm::Ref only
@@ -95,6 +99,14 @@ namespace vkc
         constexpr VkcDescriptorLayoutCache(VkcDescriptorLayoutCache&&)            = delete;
         constexpr VkcDescriptorLayoutCache& operator=(VkcDescriptorLayoutCache&&) = delete;
 
+        // Forbid default construction
+        VkcDescriptorLayoutCache() = delete;
+
+        /**
+         * @brief Destroys this descriptor set layout cache.
+         */
+        void Destroy() noexcept;
+
         /**
          * @brief Creates a new descriptor set layout or returns the layout if it already exists.
          *
@@ -104,11 +116,6 @@ namespace vkc
          * @returns True if the descriptor set layout was found or created successfully, false otherwise.
          */
         bool CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info, VkDescriptorSetLayout& outDstSetLayout) noexcept;
-
-        /**
-         * @brief Destroys this descriptor set layout cache.
-         */
-        void Destroy() noexcept;
 
         /**
          * @brief Checks if this descriptor set layout cache is valid.

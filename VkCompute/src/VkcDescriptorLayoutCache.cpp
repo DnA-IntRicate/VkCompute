@@ -12,6 +12,18 @@ namespace vkc
         Destroy();
     }
 
+    void VkcDescriptorLayoutCache::Destroy() noexcept
+    {
+        for (auto& [info, layout] : m_LayoutCache)
+        {
+            if (layout)
+                vkDestroyDescriptorSetLayout(m_Device->GetDevice(), layout, nullptr);
+        }
+
+        m_LayoutCache.clear();
+        m_Device = nullptr;
+    }
+
     bool VkcDescriptorLayoutCache::CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info,
         VkDescriptorSetLayout& outDstSetLayout) noexcept
     {
@@ -52,18 +64,6 @@ namespace vkc
 
         m_LayoutCache[layoutInfo] = outDstSetLayout;
         return true;
-    }
-
-    void VkcDescriptorLayoutCache::Destroy() noexcept
-    {
-        for (auto& [info, layout] : m_LayoutCache)
-        {
-            if (layout)
-                vkDestroyDescriptorSetLayout(m_Device->GetDevice(), layout, nullptr);
-        }
-
-        m_LayoutCache.clear();
-        m_Device = nullptr;
     }
 
     ilm::Ref<VkcDescriptorLayoutCache> VkcDescriptorLayoutCache::Create(const ilm::Ref<VkcDevice>& device) noexcept
