@@ -38,10 +38,10 @@ namespace vkc
         }
 
         m_CurrentPool = nullptr;
-        m_Device = nullptr;
+        m_Device      = nullptr;
     }
 
-    bool VkcDescriptorAllocator::AllocateSet(const VkDescriptorSetLayout& layout, VkDescriptorSet& outDstSet) noexcept
+    bool VkcDescriptorAllocator::AllocateSet(const VkDescriptorSetLayout& layout, VkcDescriptorSetAllocation& outDstAlloc) noexcept
     {
         if (!m_CurrentPool)
         {
@@ -60,11 +60,16 @@ namespace vkc
         dstSetInfo.descriptorPool     = m_CurrentPool;
         dstSetInfo.descriptorSetCount = 1;
         dstSetInfo.pSetLayouts        = &layout;
-        VkResult err                  = vkAllocateDescriptorSets(m_Device->GetDevice(), &dstSetInfo, &outDstSet);
+
+        VkDescriptorSet set;
+        VkResult err = vkAllocateDescriptorSets(m_Device->GetDevice(), &dstSetInfo, &set);
 
         // Success
         if (err == VK_SUCCESS)
+        {
+            outDstAlloc = VkcDescriptorSetAllocation(set, dstSetInfo.descriptorPool);
             return true;
+        }
 
         // Irrecoverable errors
         if ((err != VK_ERROR_FRAGMENTED_POOL) && (err != VK_ERROR_OUT_OF_POOL_MEMORY))
@@ -81,7 +86,12 @@ namespace vkc
         }
 
         m_ActivePools.push_back(m_CurrentPool);
-        return AllocateSet(layout, outDstSet);
+        return AllocateSet(layout, outDstAlloc);
+    }
+
+    bool VkcDescriptorAllocator::FreeSet(VkcDescriptorSetAllocation& dstAlloc) noexcept
+    {
+        return vkFreeDescriptorSets(m_Device->GetDevice(), dstAlloc.PoolHandle, 1, &dstAlloc.DescriptorSet) == VK_SUCCESS;
     }
 
     void VkcDescriptorAllocator::ResetPools() noexcept

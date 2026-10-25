@@ -9,6 +9,58 @@
 namespace vkc
 {
     /**
+     * @brief Encapsulates a descriptor set allocation and its metadata.
+     */
+    struct VkcDescriptorSetAllocation
+    {
+        constexpr VkcDescriptorSetAllocation(VkDescriptorSet set, VkDescriptorPool pool) noexcept
+            : DescriptorSet(set), PoolHandle(pool)
+        {
+        }
+
+        constexpr VkcDescriptorSetAllocation(std::nullptr_t) noexcept
+            : DescriptorSet(nullptr), PoolHandle(nullptr)
+        {
+        }
+
+        constexpr VkcDescriptorSetAllocation(const VkcDescriptorSetAllocation&)            = default;
+        constexpr VkcDescriptorSetAllocation& operator=(const VkcDescriptorSetAllocation&) = default;
+
+        constexpr VkcDescriptorSetAllocation(VkcDescriptorSetAllocation&&)            = default;
+        constexpr VkcDescriptorSetAllocation& operator=(VkcDescriptorSetAllocation&&) = default;
+
+        constexpr VkcDescriptorSetAllocation() = default;
+
+        /**
+         * @brief Checks for validity.
+         */
+        constexpr operator bool() const noexcept { return (bool)DescriptorSet && (bool)PoolHandle; }
+
+        /**
+         * @brief Checks for equality between this instance and other.
+         */
+        constexpr bool operator==(const VkcDescriptorSetAllocation& other) const noexcept
+        {
+            return (DescriptorSet == other.DescriptorSet) && (PoolHandle == other.PoolHandle);
+        }
+
+        /**
+         * @brief Checks for inequality between this instance and other.
+         */
+        constexpr bool operator!=(const VkcDescriptorSetAllocation& other) const noexcept { return (*this) == other; }
+
+        /**
+         * @brief The descriptor set handle.
+         */
+        VkDescriptorSet DescriptorSet = nullptr;
+
+        /**
+         * @brief The parent descriptor pool handle that the set was allocated from.
+         */
+        VkDescriptorPool PoolHandle = nullptr;
+    };
+
+    /**
      * @brief Manages the allocation of descriptor sets.
      */
     class VkcDescriptorAllocator
@@ -29,6 +81,9 @@ namespace vkc
         constexpr VkcDescriptorAllocator(VkcDescriptorAllocator&&)            = delete;
         constexpr VkcDescriptorAllocator& operator=(VkcDescriptorAllocator&&) = delete;
 
+        // Forbid default construction
+        constexpr VkcDescriptorAllocator() = delete;
+
         /**
          * @brief Destroys this descriptor allocator. All descriptor sets allocated
          * by this allocator must be destroyed before destroying this allocator.
@@ -39,11 +94,20 @@ namespace vkc
          * @brief Allocates a new descriptor set from an available pool using the
          * specified VkDescriptorSetLayout.
          *
-         * @param outDstSet The VkDescriptorSet handle to allocate.
+         * @param outDstAlloc The descriptor set allocation object to write to.
          *
          * @returns True if the set was allocated, false otherwise.
          */
-        bool AllocateSet(const VkDescriptorSetLayout& layout, VkDescriptorSet& outDstSet) noexcept;
+        bool AllocateSet(const VkDescriptorSetLayout& layout, VkcDescriptorSetAllocation& outDstAlloc) noexcept;
+
+        /**
+         * @brief Frees the specified descriptor set.
+         *
+         * @param dstAlloc The descriptor set allocation to free.
+         *
+         * @returns True if the set was successfully free'd, false otherwise.
+         */
+        bool FreeSet(VkcDescriptorSetAllocation& dstAlloc) noexcept;
 
         /**
          * @brief Resets all active & marks them as free pools.
