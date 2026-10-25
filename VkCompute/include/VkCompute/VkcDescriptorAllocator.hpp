@@ -115,6 +115,11 @@ namespace vkc
         void ResetPools() noexcept;
 
         /**
+         * @brief Gets the device that this descriptor allocator is created for.
+         */
+        constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
+
+        /**
          * @brief Checks if this descriptor allocator is valid.
          */
         constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && (bool)m_CurrentPool; }
