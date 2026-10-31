@@ -23,6 +23,8 @@ namespace vkc
             : m_Start(Clock::now())
         {
         }
+        
+        ~VkcTimer() = default;
 
         // Forbid copy-assignment
         constexpr VkcTimer(const VkcTimer&)            = delete;
@@ -31,8 +33,6 @@ namespace vkc
         // Forbid move-assignment
         constexpr VkcTimer(VkcTimer&&)            = delete;
         constexpr VkcTimer& operator=(VkcTimer&&) = delete;
-
-        ~VkcTimer() = default;
 
         /**
          * @brief Gets the elapsed duration without stopping the timer.

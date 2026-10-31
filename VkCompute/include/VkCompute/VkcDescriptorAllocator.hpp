@@ -2,7 +2,7 @@
 #include "VkcDevice.hpp"
 #include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
-#include <Volk/volk.h>
+#include <vulkan/vulkan_core.h>
 #include <vector>
 
 
