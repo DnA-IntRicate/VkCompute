@@ -18,8 +18,10 @@ namespace vkc
     class VkcDescriptorBuilder
     {
     public:
-        constexpr VkcDescriptorBuilder(const ilm::Ref<VkcDescriptorAllocator>& allocator,
-            const ilm::Ref<VkcDescriptorLayoutCache>& cache) noexcept
+        constexpr VkcDescriptorBuilder(
+            const ilm::Ref<VkcDescriptorAllocator>& allocator,
+            const ilm::Ref<VkcDescriptorLayoutCache>& cache
+        ) noexcept
             : m_Allocator(allocator), m_LayoutCache(cache)
         {
         }
@@ -116,8 +118,13 @@ namespace vkc
          * @param type Type of descriptor being written.
          * @param count Number of descriptors to update. Defaults to 1.
          */
-        void Update(VkDescriptorSet& dstSet, uint32_t binding, VkDescriptorBufferInfo& info, VkDescriptorType type,
-            uint32_t count = 1) noexcept;
+        void Update(
+            VkDescriptorSet& dstSet,
+            uint32_t binding,
+            VkDescriptorBufferInfo& info,
+            VkDescriptorType type,
+            uint32_t count = 1
+        ) noexcept;
 
         /**
          * @brief Applies the builder's configured descriptor writes to a descriptor set.
@@ -138,8 +145,10 @@ namespace vkc
         /**
          * @brief Creates a new VkcDescriptorBuilder.
          */
-        static ilm::Ref<VkcDescriptorBuilder> Create(const ilm::Ref<VkcDescriptorAllocator>& allocator,
-            const ilm::Ref<VkcDescriptorLayoutCache>& cache) noexcept;
+        static ilm::Ref<VkcDescriptorBuilder> Create(
+            const ilm::Ref<VkcDescriptorAllocator>& allocator,
+            const ilm::Ref<VkcDescriptorLayoutCache>& cache
+        ) noexcept;
 
     private:
         ilm::Ref<VkcDescriptorAllocator> m_Allocator;

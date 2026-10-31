@@ -64,7 +64,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<LogLevel Level, fmt::formattable... Args>
+    template <LogLevel Level, fmt::formattable... Args>
     void Log(fmt::format_string<Args...> fmt, Args&&... args)
     {
         FILE* out = stdout;
@@ -103,7 +103,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Trace(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Trace>(fmt, std::forward<Args>(args)...);
@@ -116,7 +116,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Info(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Info>(fmt, std::forward<Args>(args)...);
@@ -129,7 +129,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Warn(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Warn>(fmt, std::forward<Args>(args)...);
@@ -142,7 +142,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Error(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Error>(fmt, std::forward<Args>(args)...);
@@ -155,7 +155,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Critical(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Critical>(fmt, std::forward<Args>(args)...);
@@ -168,7 +168,7 @@ namespace vkc
      * @param fmt Compile-time checked format string.
      * @param args Arguments used to format the message.
      */
-    template<fmt::formattable... Args>
+    template <fmt::formattable... Args>
     void Success(fmt::format_string<Args...> fmt, Args&&... args)
     {
         Log<LogLevel::Success>(fmt, std::forward<Args>(args)...);

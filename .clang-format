@@ -6,6 +6,7 @@ BasedOnStyle: Google
 IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 4
+BracedInitializerIndentWidth: 4
 UseTab: Never
 ColumnLimit: 140
 InsertNewlineAtEOF: true
@@ -23,7 +24,7 @@ SpaceBeforeCtorInitializerColon: true
 SpaceAfterCStyleCast: false
 SpacesInContainerLiterals: true
 SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: false
+SpaceAfterTemplateKeyword: true
 SpacesInLineCommentPrefix:
   Minimum: 1
   Maximum: -1
@@ -34,7 +35,7 @@ KeepEmptyLines:
   AtStartOfFile: false
   AtEndOfFile: false
 MaxEmptyLinesToKeep: 2
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllArgumentsOnNextLine: false
 EmptyLineBeforeAccessModifier: Always
 InsertTrailingCommas: Wrapped
@@ -57,21 +58,25 @@ LambdaBodyIndentation: Signature
 NamespaceIndentation: All
 
 # Alignment
-AlignAfterOpenBracket: false
+AlignAfterOpenBracket: BlockIndent
 AlignArrayOfStructures: Left
+
 AlignConsecutiveAssignments:
   Enabled: true
   AlignCompound: true
   AcrossEmptyLines: false
   AcrossComments: false
   PadOperators: true
+
 AlignConsecutiveMacros:
   Enabled: true
   AcrossEmptyLines: true
   AcrossComments: true
+
 AlignTrailingComments:
   Kind: Always
   OverEmptyLines: 2
+
 AlignConsecutiveShortCaseStatements:
   Enabled: true
   AcrossEmptyLines: true
@@ -79,13 +84,12 @@ AlignConsecutiveShortCaseStatements:
   AlignCaseColons: false
 
 # Include directives
-# NOTE: Auto sorting is disabled because of many, many possible issues that can arise from changing
-#       include ordering.
+# Auto sorting intentionally disabled to preserve manual include ordering.
 #
 SortIncludes: false
 IncludeBlocks: Preserve
 IncludeCategories:
-  - Regex: '^<.*PCH\.hpp>$' # Keep Precompiled headers on top
+  - Regex: '^<.*PCH\.hpp>$'
     Priority: 0
     SortPriority: 0
   - Regex: '^"(.*)\.hpp"$'
@@ -94,18 +98,15 @@ IncludeCategories:
   - Regex: '^<VkCompute/.*>$'
     Priority: 2
     SortPriority: 2
-  - Regex: '^<VkCompute/.*>$'
+  - Regex: '^<.*>$'
     Priority: 3
     SortPriority: 3
-  - Regex: '^<.*>$'
-    Priority: 4
-    SortPriority: 4
 
 # Preprocessor
 IndentPPDirectives: AfterHash
 PPIndentWidth: -1
 
-# Pointers
+# Pointers & references
 PointerAlignment: Left
 ReferenceAlignment: Left
 
@@ -114,13 +115,28 @@ PackConstructorInitializers: NextLineOnly
 BreakConstructorInitializers: BeforeColon
 ReflowComments: true
 AccessModifierOffset: -4
+
 QualifierAlignment: Custom
-QualifierOrder: ['friend', 'static', 'inline', 'constexpr', 'const', 'restrict', 'volatile', 'type']
-# BinPackLongBracedList: false (ver: clang 21)
+QualifierOrder:
+  - friend
+  - static
+  - inline
+  - constexpr
+  - const
+  - restrict
+  - volatile
+  - type
+
+# Parameter and argument packing
 BinPackArguments: false
-BinPackParameters: true
-# SeparateDefinitionBlocks: true
+BinPackParameters: false
+BinPackLongBracedList: false
 
 # Penalties
 PenaltyBreakAssignment: 1000
 PenaltyBreakBeforeFirstCallParameter: 1000
+PenaltyReturnTypeOnItsOwnLine: 10000
+
+# Concepts & requires expressions
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope

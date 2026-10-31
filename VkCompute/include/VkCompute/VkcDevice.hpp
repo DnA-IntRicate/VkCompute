@@ -14,8 +14,14 @@ namespace vkc
      */
     struct VkcPhysicalDevice
     {
-        constexpr VkcPhysicalDevice(VkPhysicalDevice handle, uint32_t index, const char* name, VkPhysicalDeviceType type,
-            bool computeEnabled, uint32_t computeQfIndex) noexcept
+        constexpr VkcPhysicalDevice(
+            VkPhysicalDevice handle,
+            uint32_t index,
+            const char* name,
+            VkPhysicalDeviceType type,
+            bool computeEnabled,
+            uint32_t computeQfIndex
+        ) noexcept
             : Handle(handle), Index(index), Name(name), Type(type), ComputeEnabled(computeEnabled), ComputeQueueFamilyIndex(computeQfIndex)
         {
         }

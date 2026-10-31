@@ -7,6 +7,7 @@
 namespace vkc
 {
     // NOTE(Adam): For VkCompute, we only actually care about uniform & storage buffers.
+    // clang-format off
     static constexpr std::array<std::pair<VkDescriptorType, uint32_t>, 4> POOL_SIZES =
     {{
         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,            1 },
@@ -14,6 +15,7 @@ namespace vkc
         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,            2 },
         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,    2 }
     }};
+    // clang-format on
 
     // The maximum number of descriptor sets that can be allocated per pool.
     static constexpr uint32_t MAX_SETS_PER_POOL = 64;
