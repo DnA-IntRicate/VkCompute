@@ -15,17 +15,17 @@ namespace vkc
     void VkcDescriptorLayoutCache::Destroy() noexcept
     {
         for (auto& [info, layout] : m_LayoutCache)
-        {
             if (layout)
                 vkDestroyDescriptorSetLayout(m_Device->GetDevice(), layout, nullptr);
-        }
 
         m_LayoutCache.clear();
         m_Device = nullptr;
     }
 
-    bool VkcDescriptorLayoutCache::CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info,
-        VkDescriptorSetLayout& outDstSetLayout) noexcept
+    bool VkcDescriptorLayoutCache::CreateDescriptorSetLayout(
+        VkDescriptorSetLayoutCreateInfo& info,
+        VkDescriptorSetLayout& outDstSetLayout
+    ) noexcept
     {
         VkcDescriptorLayoutInfo layoutInfo;
         layoutInfo.Bindings.resize(info.bindingCount);
@@ -43,8 +43,10 @@ namespace vkc
         }
 
         if (!isSorted)
-            std::ranges::sort(layoutInfo.Bindings,
-                [](VkDescriptorSetLayoutBinding& a, VkDescriptorSetLayoutBinding& b) { return a.binding < b.binding; });
+            std::ranges::sort(
+                layoutInfo.Bindings,
+                [](VkDescriptorSetLayoutBinding& a, VkDescriptorSetLayoutBinding& b) { return a.binding < b.binding; }
+            );
 
         // Fast cache lookup - only hash once
         if (const auto it = m_LayoutCache.find(layoutInfo); it != m_LayoutCache.end())

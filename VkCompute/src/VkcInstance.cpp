@@ -9,8 +9,12 @@
 
 namespace vkc
 {
-    static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+    static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessageCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData
+    )
     {
         switch (messageSeverity)
         {
@@ -65,9 +69,11 @@ namespace vkc
     };
 
     // Find which of the Vulkan extensions we want enabled are actually supported by this device
-    template<size_t N>
-    static constexpr std::vector<const char*> FindBestExtensions(const std::vector<VkExtensionProperties>& installed,
-        const std::array<const char*, N>& wanted) noexcept
+    template <size_t N>
+    static constexpr std::vector<const char*> FindBestExtensions(
+        const std::vector<VkExtensionProperties>& installed,
+        const std::array<const char*, N>& wanted
+    ) noexcept
     {
         std::vector<const char*> res;
         for (const char* const& s : wanted)
@@ -86,9 +92,11 @@ namespace vkc
     }
 
     // Find which of the Vulkan layers we want enabled are actually supported by the device
-    template<size_t N>
-    static constexpr std::vector<const char*> FindBestLayers(const std::vector<VkLayerProperties>& installed,
-        const std::array<const char*, N>& wanted) noexcept
+    template <size_t N>
+    static constexpr std::vector<const char*> FindBestLayers(
+        const std::vector<VkLayerProperties>& installed,
+        const std::array<const char*, N>& wanted
+    ) noexcept
     {
         std::vector<const char*> res;
         for (const char* const& s : wanted)
@@ -107,8 +115,12 @@ namespace vkc
     }
 
     // Helper function to setup the Vulkan debug messenger
-    static inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-        const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) noexcept
+    static inline VkResult CreateDebugUtilsMessengerEXT(
+        VkInstance instance,
+        const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+        const VkAllocationCallbacks* pAllocator,
+        VkDebugUtilsMessengerEXT* pDebugMessenger
+    ) noexcept
     {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func)
@@ -118,8 +130,11 @@ namespace vkc
     }
 
     // Helper function to destroy the Vulkan debug messenger
-    static inline void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-        const VkAllocationCallbacks* pAllocator) noexcept
+    static inline void DestroyDebugUtilsMessengerEXT(
+        VkInstance instance,
+        VkDebugUtilsMessengerEXT debugMessenger,
+        const VkAllocationCallbacks* pAllocator
+    ) noexcept
     {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func)

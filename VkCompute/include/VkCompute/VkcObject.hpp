@@ -6,6 +6,7 @@
 
 namespace vkc
 {
+    // clang-format off
     template<typename T>
     concept VkcObject = requires(T obj)
     {
@@ -18,4 +19,5 @@ namespace vkc
     {
         { T::Create(std::forward<Args>(args)...) } -> std::same_as<ilm::Ref<T>>;
     };
+    // clang-format on
 }  // namespace vkc

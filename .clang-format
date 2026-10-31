@@ -6,6 +6,7 @@ BasedOnStyle: Google
 IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 4
+BracedInitializerIndentWidth: 4
 UseTab: Never
 ColumnLimit: 140
 InsertNewlineAtEOF: true
@@ -23,7 +24,7 @@ SpaceBeforeCtorInitializerColon: true
 SpaceAfterCStyleCast: false
 SpacesInContainerLiterals: true
 SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: false
+SpaceAfterTemplateKeyword: true
 SpacesInLineCommentPrefix:
   Minimum: 1
   Maximum: -1
@@ -129,8 +130,13 @@ QualifierOrder:
 # Parameter and argument packing
 BinPackArguments: false
 BinPackParameters: false
+BinPackLongBracedList: false
 
 # Penalties
 PenaltyBreakAssignment: 1000
 PenaltyBreakBeforeFirstCallParameter: 1000
 PenaltyReturnTypeOnItsOwnLine: 10000
+
+# Concepts & requires expressions
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
