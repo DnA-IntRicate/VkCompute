@@ -7,6 +7,11 @@ project "VkCompute"
         DllApi = Config.DllImport
     }
 
+    files
+    {
+        "shaders/**.glsl"
+    }
+
     externalincludedirs
     {
         IncludeDir.Fmt,
@@ -29,6 +34,10 @@ project "VkCompute"
         "VMA_STATIC_VULKAN_FUNCTIONS=" .. (Config.DynamicLinking and 0 or 1),
         "VMA_DYNAMIC_VULKAN_FUNCTIONS=" .. (Config.DynamicLinking and 1 or 0)
     }
+
+    filter "files:shaders/**.glsl"
+        buildaction "Copy"
+    filter {}
 
     filter "system:windows"
         defines
