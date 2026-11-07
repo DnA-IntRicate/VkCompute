@@ -59,14 +59,23 @@ namespace vkc
         spirv_cross::Compiler compiler(spv.data(), spv.size());
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-        vkc::Info("Created shader '{0}' of type VK_SHADER_STAGE_COMPUTE_BIT in {1}ms.", name, compileTimeMs);
+        vkc::Success("Created shader '{0}' of type VK_SHADER_STAGE_COMPUTE_BIT in {1}ms.", name, compileTimeMs);
         vkc::Trace("    {0} uniform buffers", resources.uniform_buffers.size());
         vkc::Trace("    {0} push constant buffers", resources.push_constant_buffers.size());
         vkc::Trace("    {0} storage buffers", resources.storage_buffers.size());
-        vkc::Trace("    {0} resources", resources.sampled_images.size());
+
+        const size_t resourceCount = resources.uniform_buffers.size() + resources.storage_buffers.size()
+                                     + resources.push_constant_buffers.size() + resources.sampled_images.size()
+                                     + resources.separate_images.size() + resources.separate_samplers.size()
+                                     + resources.storage_images.size() + resources.subpass_inputs.size() + resources.atomic_counters.size()
+                                     + resources.acceleration_structures.size();
+        vkc::Trace("    {0} resources", resourceCount);
 
         const auto reflectBuffers = [&compiler](std::string_view header, const spirv_cross::SmallVector<spirv_cross::Resource>& resources)
         {
+            if (resources.empty())
+                return;
+
             vkc::Trace("    {0}:", header);
             for (const auto& resource : resources)
             {
@@ -145,7 +154,7 @@ namespace vkc
             return;
         }
 
-        vkc::Info("Compiled shader '{0}'.", m_Name);
+        vkc::Success("Compiled shader '{0}'.", m_Name);
         if (!CreateShader(m_Device, spv, m_Shader))
         {
             vkc::Error("Failed to create '{0}' shader module!", m_Name);

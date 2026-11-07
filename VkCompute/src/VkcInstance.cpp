@@ -278,6 +278,7 @@ namespace vkc
     {
         vkc::Warn("Vulkan shutting-down...");
 
+        m_Device->WaitIdle();
         m_Device->Destroy();
         m_Device = nullptr;
 
