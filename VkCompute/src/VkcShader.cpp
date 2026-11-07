@@ -71,9 +71,9 @@ namespace vkc
             for (const auto& resource : resources)
             {
                 const auto& bufferType = compiler.get_type(resource.base_type_id);
-                uint32_t bufferSize    = compiler.get_declared_struct_size(bufferType);
+                size_t bufferSize      = compiler.get_declared_struct_size(bufferType);
                 uint32_t binding       = compiler.get_decoration(resource.id, ::spv::Decoration::DecorationBinding);
-                int memberCount        = bufferType.member_types.size();
+                size_t memberCount     = bufferType.member_types.size();
 
                 vkc::Trace("      {0}", resource.name);
                 vkc::Trace("        Size = {0}", bufferSize);
@@ -112,9 +112,24 @@ namespace vkc
         return true;
     }
 
+    static inline bool CreateShader(const ilm::Ref<VkcDevice>& device, const std::vector<uint32_t>& spv, VkShaderModule& outShader) noexcept
+    {
+        VkShaderModuleCreateInfo createInfo{};
+        createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        createInfo.pNext    = nullptr;
+        createInfo.flags    = 0;
+        createInfo.codeSize = spv.size() * sizeof(uint32_t);
+        createInfo.pCode    = spv.data();
+
+        return vkCreateShaderModule(device->GetDevice(), &createInfo, nullptr, &outShader) == VK_SUCCESS;
+    }
+
     VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::filesystem::path& path) noexcept
         : m_Device(device), m_Name(path.stem().string())
     {
+        // Time shader load, compilation and creation
+        VkcTimer<std::chrono::milliseconds> timer;
+
         std::string source;
         if (!ReadFile(path, source))
         {
@@ -122,24 +137,25 @@ namespace vkc
             return;
         }
 
+        std::vector<uint32_t> spv;
+        if (!CompileToSpv(source, m_Name, spv))
         {
-            VkcTimer<std::chrono::milliseconds> timer;
-
-            std::vector<uint32_t> spv;
-            if (!CompileToSpv(source, m_Name, spv))
-            {
-                // TODO: Handle errors
-            }
-
-            CreateShader(m_Device, spv, m_Shader);
-            Reflect(m_Name, timer.Elapsed(), spv);
+            vkc::Error("Failed to create shader!");
+            return;
         }
+
+        if (!CreateShader(m_Device, spv, m_Shader))
+        {
+            vkc::Error("Failed to create '{0}' shader module!", m_Name);
+            return;
+        }
+
+        Reflect(m_Name, timer.Elapsed(), spv);
     }
 
     VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept
         : m_Device(device), m_Name(name)
     {
-
     }
 
     VkcShader::~VkcShader() noexcept
