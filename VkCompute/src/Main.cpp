@@ -18,12 +18,12 @@ int main(int argc, char** argv)
     const auto& device = g_Instance.GetDevice();
 
     // Test creating a new dst set builder
-    ilm::Ref<VkcDescriptorAllocator> dstAllocator     = VkcDescriptorAllocator::Create(device);
-    ilm::Ref<VkcDescriptorLayoutCache> dstLayoutCache = VkcDescriptorLayoutCache::Create(device);
-    ilm::Ref dstBuilder                               = VkcDescriptorBuilder::Create(dstAllocator, dstLayoutCache);
+    ilm::Ref dstAllocator   = VkcDescriptorAllocator::Create(device);
+    ilm::Ref dstLayoutCache = VkcDescriptorLayoutCache::Create(device);
+    ilm::Ref dstBuilder     = VkcDescriptorBuilder::Create(dstAllocator, dstLayoutCache);
 
     // Shader creation test
-    ilm::Ref<VkcShader> demoShader = VkcShader::Create(device, "ComputeDemo.glsl");
+    ilm::Ref demoShader = VkcShader::Create(device, "ComputeDemo.glsl");
     vkc::Warn("Shader valid: {0}", demoShader->Valid());
 
     dstBuilder     = nullptr;
