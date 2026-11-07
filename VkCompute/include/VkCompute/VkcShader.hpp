@@ -25,7 +25,7 @@ namespace vkc
         /**
          * @brief
          */
-        VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept;
+        VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<const uint32_t> spv) noexcept;
 
         ~VkcShader() noexcept;
 
@@ -56,7 +56,7 @@ namespace vkc
         constexpr std::string GetName() const noexcept { return m_Name; }
 
         /**
-         * @brief Checks if this descriptor allocator is valid.
+         * @brief Checks if this shader is valid.
          */
         constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && (bool)m_Shader; }
 
@@ -69,7 +69,11 @@ namespace vkc
         /**
          * @brief
          */
-        static ilm::Ref<VkcShader> Create(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept;
+        static ilm::Ref<VkcShader> Create(
+            const ilm::Ref<VkcDevice>& device,
+            const std::string& name,
+            std::span<const uint32_t> spv
+        ) noexcept;
 
     private:
         ilm::Ref<VkcDevice> m_Device;
@@ -80,5 +84,5 @@ namespace vkc
 
     static_assert(VkcObject<VkcShader>);
     static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::filesystem::path&>);
-    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::string&, std::span<uint8_t>&>);
+    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::string&, std::span<const uint32_t>>);
 }  // namespace vkc

@@ -54,12 +54,12 @@ namespace vkc
         return true;
     }
 
-    static inline void Reflect(std::string_view name, uint64_t compileTimeMs, const std::vector<uint32_t>& spv) noexcept
+    static inline void Reflect(std::string_view name, uint64_t compileTimeMs, std::span<const uint32_t> spv) noexcept
     {
-        spirv_cross::Compiler compiler(spv);
+        spirv_cross::Compiler compiler(spv.data(), spv.size());
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-        vkc::Info("Compiled shader '{0}' of type VK_SHADER_STAGE_COMPUTE_BIT in {1}ms.", name, compileTimeMs);
+        vkc::Info("Created shader '{0}' of type VK_SHADER_STAGE_COMPUTE_BIT in {1}ms.", name, compileTimeMs);
         vkc::Trace("    {0} uniform buffers", resources.uniform_buffers.size());
         vkc::Trace("    {0} push constant buffers", resources.push_constant_buffers.size());
         vkc::Trace("    {0} storage buffers", resources.storage_buffers.size());
@@ -87,7 +87,7 @@ namespace vkc
         reflectBuffers("Storage buffers", resources.storage_buffers);
     }
 
-    static inline bool CompileToSpv(const std::string& source, const std::string& sourceFileName, std::vector<uint32_t>& outSpv) noexcept
+    static inline bool CompileToSpv(const std::string& source, std::string_view sourceFileName, std::vector<uint32_t>& outSpv) noexcept
     {
         shaderc::Compiler compiler;
         shaderc::CompileOptions compileOpts;
@@ -98,7 +98,7 @@ namespace vkc
         shaderc::SpvCompilationResult compResult = compiler.CompileGlslToSpv(
             source,
             shaderc_compute_shader,
-            sourceFileName.c_str(),
+            sourceFileName.data(),
             compileOpts
         );
 
@@ -112,7 +112,7 @@ namespace vkc
         return true;
     }
 
-    static inline bool CreateShader(const ilm::Ref<VkcDevice>& device, const std::vector<uint32_t>& spv, VkShaderModule& outShader) noexcept
+    static inline bool CreateShader(const ilm::Ref<VkcDevice>& device, std::span<const uint32_t> spv, VkShaderModule& outShader) noexcept
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -129,6 +129,7 @@ namespace vkc
     {
         // Time shader load, compilation and creation
         VkcTimer<std::chrono::milliseconds> timer;
+        vkc::Info("Loading shader source '{0}'...", path.string());
 
         std::string source;
         if (!ReadFile(path, source))
@@ -144,6 +145,7 @@ namespace vkc
             return;
         }
 
+        vkc::Info("Compiled shader '{0}'.", m_Name);
         if (!CreateShader(m_Device, spv, m_Shader))
         {
             vkc::Error("Failed to create '{0}' shader module!", m_Name);
@@ -153,9 +155,20 @@ namespace vkc
         Reflect(m_Name, timer.Elapsed(), spv);
     }
 
-    VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept
+    VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<const uint32_t> spv) noexcept
         : m_Device(device), m_Name(name)
     {
+        // Time shader load and creation
+        VkcTimer<std::chrono::milliseconds> timer;
+        vkc::Info("Loading precompiled shader '{0}'...", m_Name);
+
+        if (!CreateShader(m_Device, spv, m_Shader))
+        {
+            vkc::Error("Failed to create '{0}' precompiled shader module!", m_Name);
+            return;
+        }
+
+        Reflect(m_Name, timer.Elapsed(), spv);
     }
 
     VkcShader::~VkcShader() noexcept
@@ -179,7 +192,11 @@ namespace vkc
         return ilm::CreateRef<VkcShader>(device, path);
     }
 
-    ilm::Ref<VkcShader> VkcShader::Create(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept
+    ilm::Ref<VkcShader> VkcShader::Create(
+        const ilm::Ref<VkcDevice>& device,
+        const std::string& name,
+        std::span<const uint32_t> spv
+    ) noexcept
     {
         return ilm::CreateRef<VkcShader>(device, name, spv);
     }
