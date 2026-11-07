@@ -2,8 +2,12 @@
 #include <VkCompute/Log.hpp>
 #include <VkCompute/VkcTimer.hpp>
 #include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv.hpp>
+#include <spirv_cross/spirv_cross.hpp>
 #include <Volk/volk.h>
+#include <chrono>
 #include <fstream>
+#include <string_view>
 #include <vector>
 
 
@@ -50,6 +54,39 @@ namespace vkc
         return true;
     }
 
+    static inline void Reflect(std::string_view name, uint64_t compileTimeMs, const std::vector<uint32_t>& spv) noexcept
+    {
+        spirv_cross::Compiler compiler(spv);
+        spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+        vkc::Info("Compiled shader '{0}' of type VK_SHADER_STAGE_COMPUTE_BIT in {1}ms.", name, compileTimeMs);
+        vkc::Trace("    {0} uniform buffers", resources.uniform_buffers.size());
+        vkc::Trace("    {0} push constant buffers", resources.push_constant_buffers.size());
+        vkc::Trace("    {0} storage buffers", resources.storage_buffers.size());
+        vkc::Trace("    {0} resources", resources.sampled_images.size());
+
+        const auto reflectBuffers = [&compiler](std::string_view header, const spirv_cross::SmallVector<spirv_cross::Resource>& resources)
+        {
+            vkc::Trace("    {0}:", header);
+            for (const auto& resource : resources)
+            {
+                const auto& bufferType = compiler.get_type(resource.base_type_id);
+                uint32_t bufferSize    = compiler.get_declared_struct_size(bufferType);
+                uint32_t binding       = compiler.get_decoration(resource.id, ::spv::Decoration::DecorationBinding);
+                int memberCount        = bufferType.member_types.size();
+
+                vkc::Trace("      {0}", resource.name);
+                vkc::Trace("        Size = {0}", bufferSize);
+                vkc::Trace("        Binding = {0}", binding);
+                vkc::Trace("        Members = {0}", memberCount);
+            }
+        };
+
+        reflectBuffers("Uniform buffers", resources.uniform_buffers);
+        reflectBuffers("Push constant buffers", resources.push_constant_buffers);
+        reflectBuffers("Storage buffers", resources.storage_buffers);
+    }
+
     static inline bool CompileToSpv(const std::string& source, const std::string& sourceFileName, std::vector<uint32_t>& outSpv) noexcept
     {
         shaderc::Compiler compiler;
@@ -71,13 +108,12 @@ namespace vkc
             return false;
         }
 
-        // TODO(Adam): Reflection
         outSpv = std::vector<uint32_t>(compResult.cbegin(), compResult.cend());
         return true;
     }
 
     VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::filesystem::path& path) noexcept
-        : m_Name(path.stem().string())
+        : m_Device(device), m_Name(path.stem().string())
     {
         std::string source;
         if (!ReadFile(path, source))
@@ -87,20 +123,21 @@ namespace vkc
         }
 
         {
-            VkcTimer timer;
+            VkcTimer<std::chrono::milliseconds> timer;
 
-            // Time the shader compilation
             std::vector<uint32_t> spv;
             if (!CompileToSpv(source, m_Name, spv))
             {
+                // TODO: Handle errors
             }
 
-            // Timer.elapsed here
+            CreateShader(m_Device, spv, m_Shader);
+            Reflect(m_Name, timer.Elapsed(), spv);
         }
     }
 
     VkcShader::VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept
-        : m_Name(name)
+        : m_Device(device), m_Name(name)
     {
 
     }
@@ -123,11 +160,11 @@ namespace vkc
 
     ilm::Ref<VkcShader> VkcShader::Create(const ilm::Ref<VkcDevice>& device, const std::filesystem::path& path) noexcept
     {
-        return ilm::Ref<VkcShader>();
+        return ilm::CreateRef<VkcShader>(device, path);
     }
 
     ilm::Ref<VkcShader> VkcShader::Create(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<uint8_t>& spv) noexcept
     {
-        return ilm::Ref<VkcShader>();
+        return ilm::CreateRef<VkcShader>(device, name, spv);
     }
 }  // namespace vkc
