@@ -1,5 +1,4 @@
 #pragma once
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
 #include <cstdint>
@@ -130,6 +129,4 @@ namespace vkc
         VkQueue m_ComputeQueue      = nullptr;
         VkCommandPool m_CommandPool = nullptr;
     };
-
-    static_assert(VkcObject<VkcDevice>);
 }  // namespace vkc

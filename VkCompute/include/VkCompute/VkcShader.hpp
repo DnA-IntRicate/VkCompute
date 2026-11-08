@@ -1,6 +1,5 @@
 #pragma once
 #include "VkcDevice.hpp"
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <cstdint>
@@ -128,6 +127,4 @@ namespace vkc
         // Either provided or derived from the source code's file name.
         std::string m_Name;
     };
-
-    static_assert(VkcObject<VkcShader>);
 }  // namespace vkc

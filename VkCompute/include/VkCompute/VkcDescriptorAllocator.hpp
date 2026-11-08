@@ -1,6 +1,5 @@
 #pragma once
 #include "VkcDevice.hpp"
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <vector>
@@ -141,6 +140,4 @@ namespace vkc
         std::vector<VkDescriptorPool> m_ActivePools;
         std::vector<VkDescriptorPool> m_FreePools;
     };
-
-    static_assert(VkcObject<VkcDescriptorAllocator>);
 }  // namespace vkc

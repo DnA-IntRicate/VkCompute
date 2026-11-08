@@ -1,5 +1,4 @@
 #pragma once
-#include "VkcObject.hpp"
 #include "VkcDescriptorAllocator.hpp"
 #include "VkcDescriptorLayoutCache.hpp"
 #include <Ilm/Ilm.hpp>
@@ -157,6 +156,4 @@ namespace vkc
         std::vector<VkDescriptorSetLayoutBinding> m_DstSetBindings;
         std::vector<VkWriteDescriptorSet> m_DstSetWrites;
     };
-
-    static_assert(VkcObject<VkcDescriptorBuilder>);
 }  // namespace vkc

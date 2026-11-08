@@ -1,5 +1,4 @@
 #pragma once
-#include "VkcObject.hpp"
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
@@ -139,6 +138,4 @@ namespace vkc
         std::unordered_map<VkcDescriptorLayoutInfo, VkDescriptorSetLayout, VkcDescriptorLayoutHash> m_LayoutCache;
         ilm::Ref<VkcDevice> m_Device;
     };
-
-    static_assert(VkcObject<VkcDescriptorLayoutCache>);
 }  // namespace vkc
