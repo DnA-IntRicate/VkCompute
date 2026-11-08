@@ -69,6 +69,9 @@ namespace vkc
         constexpr VkcDevice(VkcDevice&&)            = delete;
         constexpr VkcDevice& operator=(VkcDevice&&) = delete;
 
+        // Forbid default construction
+        constexpr VkcDevice() = delete;
+
         /**
          * @brief Destroys this device.
          */
