@@ -2,6 +2,7 @@
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -82,6 +83,9 @@ namespace vkc
      */
     class VkcDescriptorLayoutCache
     {
+    public:
+        static constexpr std::string_view Name = "VkcDescriptorLayoutCache";
+
     public:
         constexpr VkcDescriptorLayoutCache(const ilm::Ref<VkcDevice>& device) noexcept
             : m_Device(device)

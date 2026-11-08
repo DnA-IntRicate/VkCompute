@@ -3,6 +3,7 @@
 #include "VkcDescriptorLayoutCache.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
+#include <string_view>
 #include <vector>
 
 
@@ -16,6 +17,9 @@ namespace vkc
      */
     class VkcDescriptorBuilder
     {
+    public:
+        static constexpr std::string_view Name = "VkcDescriptorBuilder";
+
     public:
         constexpr VkcDescriptorBuilder(
             const ilm::Ref<VkcDescriptorAllocator>& allocator,

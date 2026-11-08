@@ -2,6 +2,7 @@
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
+#include <string_view>
 #include <vector>
 
 
@@ -64,6 +65,9 @@ namespace vkc
      */
     class VkcDescriptorAllocator
     {
+    public:
+        static constexpr std::string_view Name = "VkcDescriptorAllocator";
+
     public:
         constexpr VkcDescriptorAllocator(const ilm::Ref<VkcDevice>& device) noexcept
             : m_Device(device)

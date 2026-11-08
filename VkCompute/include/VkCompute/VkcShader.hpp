@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <span>
 #include <string>
+#include <string_view>
 
 
 namespace vkc
@@ -19,6 +20,9 @@ namespace vkc
      */
     class VkcShader
     {
+    public:
+        static constexpr std::string_view Name = "VkcShader";
+
     public:
         /**
          * @brief Constructs a shader module from a GLSL source code file.

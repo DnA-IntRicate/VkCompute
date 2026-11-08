@@ -3,6 +3,7 @@
 #include <Volk/volk.h>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -53,6 +54,9 @@ namespace vkc
      */
     class VkcDevice
     {
+    public:
+        static constexpr std::string_view Name = "VkcDevice";
+
     public:
         VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept;
         ~VkcDevice() noexcept;
