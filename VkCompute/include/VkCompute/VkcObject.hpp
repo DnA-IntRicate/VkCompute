@@ -14,7 +14,7 @@ namespace vkc
     {
         // All objects must define a static constexpr string called 'Name'.
         { T::Name } -> std::convertible_to<std::string_view>;
-        { std::bool_constant<(T::Name, true)>() } -> std::same_as<std::true_type>;
+        typename std::bool_constant<(T::Name.size() > 0)>;
 
         // All objects must define a public void 'Destroy' function.
         { obj.Destroy() } noexcept -> std::same_as<void>;
