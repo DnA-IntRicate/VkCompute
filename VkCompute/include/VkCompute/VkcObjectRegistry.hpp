@@ -15,6 +15,14 @@ namespace vkc
     {
     };
 
-    using VkcAllObjects = VkcObjectGroup<VkcDescriptorAllocator, VkcDescriptorBuilder, VkcDescriptorLayoutCache, VkcDevice, VkcShader>;
 
+    // clang-format off
+    using VkcAllObjects = VkcObjectGroup<
+        VkcDescriptorAllocator,
+        VkcDescriptorBuilder,
+        VkcDescriptorLayoutCache,
+        VkcDevice,
+        VkcShader
+    >;
+    // clang-format on
 }  // namespace vkc
