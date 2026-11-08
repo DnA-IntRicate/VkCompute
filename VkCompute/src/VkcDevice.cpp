@@ -65,7 +65,7 @@ namespace vkc
             m_Device       = nullptr;
             m_ComputeQueue = nullptr;
 
-            vkc::Warn("Destroyed logical device instance of device '{}'.", m_PhysicalDevice.Name);
+            vkc::Warn("Destroyed logical device instance of device '{}'.", m_PhysicalDevice.Props.deviceName);
         }
     }
 
@@ -112,7 +112,7 @@ namespace vkc
                 }
             }
 
-            devices.emplace_back(pDevice, deviceIndex, props.deviceName, props.deviceType, computeEnabled, computeQueueFamilyIndex);
+            devices.emplace_back(pDevice, deviceIndex, props, computeEnabled, computeQueueFamilyIndex);
         }
 
         return devices;

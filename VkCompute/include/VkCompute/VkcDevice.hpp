@@ -17,12 +17,11 @@ namespace vkc
         constexpr VkcPhysicalDevice(
             VkPhysicalDevice handle,
             uint32_t index,
-            const char* name,
-            VkPhysicalDeviceType type,
+            VkPhysicalDeviceProperties props,
             bool computeEnabled,
             uint32_t computeQfIndex
         ) noexcept
-            : Handle(handle), Index(index), Name(name), Type(type), ComputeEnabled(computeEnabled), ComputeQueueFamilyIndex(computeQfIndex)
+            : Handle(handle), Index(index), Props(props), ComputeEnabled(computeEnabled), ComputeQueueFamilyIndex(computeQfIndex)
         {
         }
 
@@ -36,11 +35,8 @@ namespace vkc
         // The physical index of the device
         uint32_t Index = 0;
 
-        // THe name of the device
-        std::string Name;
-
-        // The device type (discrete, integrated or virtual GPU/CPU)
-        VkPhysicalDeviceType Type = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+        // Stores the properties of the physical device
+        VkPhysicalDeviceProperties Props{};
 
         // Does this device support GPU compute
         bool ComputeEnabled = false;

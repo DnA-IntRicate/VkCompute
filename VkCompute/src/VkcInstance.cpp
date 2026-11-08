@@ -264,7 +264,7 @@ namespace vkc
         vkc::Assert(it != physicalDevices.end(), "Vulkan compute is not supported on this machine!");
 
         const VkcPhysicalDevice& physicalDevice = *it;
-        vkc::Warn("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Name);
+        vkc::Warn("Using Vulkan compute device ({}): {}.", physicalDevice.Index, physicalDevice.Props.deviceName);
 
         m_Device = VkcDevice::Create(physicalDevice);
         if (m_Device->Valid())
