@@ -12,21 +12,37 @@
 namespace vkc
 {
     /**
-     * @brief A Vulkan compute shader module.
+     * @brief Represents a Vulkan compute shader module.
+     *
+     * A VkcShader encapsulates a Vulkan shader module created from compiled SPIR-V bytecode.
+     * Shader modules can be constructed either from a SPIR-V file on disk or directly
+     * from an in-memory SPIR-V bytecode buffer.
      */
     class VkcShader
     {
     public:
         /**
-         * @brief
+         * @brief Constructs a shader module from a GLSL source code file.
+         *
+         * This constructor parses and compiles the source code to SPIR-V.
+         *
+         * @param device The logical device used to create the shader module.
+         * @param path The filesystem path to the GLSL source code.
          */
         VkcShader(const ilm::Ref<VkcDevice>& device, const std::filesystem::path& path) noexcept;
 
         /**
-         * @brief
+         * @brief Constructs a shader module from in-memory SPIR-V bytecode.
+         *
+         * @param device The logical device used to create the shader module.
+         * @param name The name associated with this shader module.
+         * @param spv A span containing the compiled SPIR-V bytecode.
          */
         VkcShader(const ilm::Ref<VkcDevice>& device, const std::string& name, std::span<const uint32_t> spv) noexcept;
 
+        /**
+         * @brief Destroys this shader module.
+         */
         ~VkcShader() noexcept;
 
         // Allow copy-assignment by ilm::Ref only
@@ -46,28 +62,54 @@ namespace vkc
         void Destroy() noexcept;
 
         /**
-         * @brief Gets the device that this shader module is created for.
+         * @brief Gets the logical device associated with this shader module.
+         *
+         * @return A reference to the logical device used to create this shader.
          */
         constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
 
         /**
-         * @brief Gets this shader's name.
+         * @brief Gets the name associated with this shader module.
+         *
+         * @return The shader's name.
          */
-        constexpr std::string GetName() const noexcept { return m_Name; }
+        constexpr const std::string& GetName() const noexcept { return m_Name; }
 
         /**
-         * @brief Checks if this shader is valid.
+         * @brief Checks whether this shader module is valid.
+         *
+         * A shader is considered valid if its logical device exists and is valid,
+         * and its underlying Vulkan shader module handle is non-null.
+         *
+         * @return True if the shader module is valid; otherwise, false.
          */
         constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && (bool)m_Shader; }
 
     public:
         /**
-         * @brief
+         * @brief Creates a shader module from a GLSL source code file.
+         *
+         * Constructs and returns a reference-managed shader module using the
+         * loaded GLSL source code after compiling it to SPIR-V bytecode.
+         *
+         * @param device The logical device used to create the shader module.
+         * @param path The filesystem path to the compiled SPIR-V shader.
+         *
+         * @return A reference to the created shader module.
          */
         static ilm::Ref<VkcShader> Create(const ilm::Ref<VkcDevice>& device, const std::filesystem::path& path) noexcept;
 
         /**
-         * @brief
+         * @brief Creates a shader module from in-memory SPIR-V bytecode.
+         *
+         * Constructs and returns a reference-managed shader module directly from
+         * the supplied in-memory SPIR-V bytecode.
+         *
+         * @param device The logical device used to create the shader module.
+         * @param name The name associated with the shader module.
+         * @param spv A span containing the compiled SPIR-V bytecode.
+         *
+         * @return A reference to the created shader module.
          */
         static ilm::Ref<VkcShader> Create(
             const ilm::Ref<VkcDevice>& device,
@@ -76,9 +118,14 @@ namespace vkc
         ) noexcept;
 
     private:
+        // The logical device reference.
         ilm::Ref<VkcDevice> m_Device;
 
+        // The underlying Vulkan shader module handle.
         VkShaderModule m_Shader = nullptr;
+
+        // The name of this shader module.
+        // Either provided or derived from the source code's file name.
         std::string m_Name;
     };
 
