@@ -1,5 +1,6 @@
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
+#include <VkCompute/VkcBuffer.hpp>
 #include <VkCompute/VkcDescriptorAllocator.hpp>
 #include <VkCompute/VkcDescriptorBuilder.hpp>
 #include <VkCompute/VkcDescriptorLayoutCache.hpp>
@@ -20,13 +21,29 @@ int main(int argc, char** argv)
     // Test creating a new dst set builder
     ilm::Ref dstAllocator   = VkcDescriptorAllocator::Create(device);
     ilm::Ref dstLayoutCache = VkcDescriptorLayoutCache::Create(device);
-    ilm::Ref dstBuilder     = VkcDescriptorBuilder::Create(dstAllocator, dstLayoutCache);
 
     // Shader creation test
     ilm::Ref demoShader = VkcShader::Create(device, "ComputeDemo.glsl");
     vkc::Warn("Shader valid: {0}", demoShader->Valid());
 
-    dstBuilder     = nullptr;
+    // The buffer creation pattern we want
+    VkcBuffer buffer;
+    if (!VkcBufferFactory()
+             .SetName("SampleBuffer")
+             .SetAllocator(g_Instance.GetAllocator())
+             .SetBufferKind(VkcBufferKind::StorageBuffer)
+             .SetDevice(device)
+             .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
+             .SetDescriptorAllocator(dstAllocator)
+             .SetDescriptorLayoutCache(dstLayoutCache)
+             .SetBinding(0)
+             .SetOffset(0)
+             .SetSize(48)
+             .Create(buffer))
+    {
+        vkc::Error("FAILED TO CREATE BUFFER!");
+    }
+
     dstLayoutCache = nullptr;
     dstAllocator   = nullptr;
     demoShader     = nullptr;
