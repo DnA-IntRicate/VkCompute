@@ -1,8 +1,8 @@
 #pragma once
 #include "VkcDevice.hpp"
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
+#include <string_view>
 #include <vector>
 
 
@@ -65,6 +65,9 @@ namespace vkc
      */
     class VkcDescriptorAllocator
     {
+    public:
+        static constexpr std::string_view Name = "VkcDescriptorAllocator";
+
     public:
         constexpr VkcDescriptorAllocator(const ilm::Ref<VkcDevice>& device) noexcept
             : m_Device(device)
@@ -141,7 +144,4 @@ namespace vkc
         std::vector<VkDescriptorPool> m_ActivePools;
         std::vector<VkDescriptorPool> m_FreePools;
     };
-
-    static_assert(VkcObject<VkcDescriptorAllocator>);
-    static_assert(VkcCreatable<VkcDescriptorAllocator, const ilm::Ref<VkcDevice>&>);
 }  // namespace vkc

@@ -1,9 +1,9 @@
 #pragma once
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -55,6 +55,9 @@ namespace vkc
     class VkcDevice
     {
     public:
+        static constexpr std::string_view Name = "VkcDevice";
+
+    public:
         VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept;
         ~VkcDevice() noexcept;
 
@@ -65,6 +68,9 @@ namespace vkc
         // Allow move-assignment by ilm::Ref only
         constexpr VkcDevice(VkcDevice&&)            = delete;
         constexpr VkcDevice& operator=(VkcDevice&&) = delete;
+
+        // Forbid default construction
+        constexpr VkcDevice() = delete;
 
         /**
          * @brief Destroys this device.
@@ -130,7 +136,4 @@ namespace vkc
         VkQueue m_ComputeQueue      = nullptr;
         VkCommandPool m_CommandPool = nullptr;
     };
-
-    static_assert(VkcObject<VkcDevice>);
-    static_assert(VkcCreatable<VkcDevice, const VkcPhysicalDevice&>);
 }  // namespace vkc

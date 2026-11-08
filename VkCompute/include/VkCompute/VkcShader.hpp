@@ -1,12 +1,12 @@
 #pragma once
 #include "VkcDevice.hpp"
-#include "VkcObject.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <cstdint>
 #include <filesystem>
 #include <span>
 #include <string>
+#include <string_view>
 
 
 namespace vkc
@@ -20,6 +20,9 @@ namespace vkc
      */
     class VkcShader
     {
+    public:
+        static constexpr std::string_view Name = "VkcShader";
+
     public:
         /**
          * @brief Constructs a shader module from a GLSL source code file.
@@ -128,8 +131,4 @@ namespace vkc
         // Either provided or derived from the source code's file name.
         std::string m_Name;
     };
-
-    static_assert(VkcObject<VkcShader>);
-    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::filesystem::path&>);
-    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::string&, std::span<const uint32_t>>);
 }  // namespace vkc

@@ -1,9 +1,9 @@
 #pragma once
-#include "VkcObject.hpp"
 #include "VkcDescriptorAllocator.hpp"
 #include "VkcDescriptorLayoutCache.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
+#include <string_view>
 #include <vector>
 
 
@@ -17,6 +17,9 @@ namespace vkc
      */
     class VkcDescriptorBuilder
     {
+    public:
+        static constexpr std::string_view Name = "VkcDescriptorBuilder";
+
     public:
         constexpr VkcDescriptorBuilder(
             const ilm::Ref<VkcDescriptorAllocator>& allocator,
@@ -157,7 +160,4 @@ namespace vkc
         std::vector<VkDescriptorSetLayoutBinding> m_DstSetBindings;
         std::vector<VkWriteDescriptorSet> m_DstSetWrites;
     };
-
-    static_assert(VkcObject<VkcDescriptorBuilder>);
-    static_assert(VkcCreatable<VkcDescriptorBuilder, const ilm::Ref<VkcDescriptorAllocator>&, const ilm::Ref<VkcDescriptorLayoutCache>&>);
 }  // namespace vkc

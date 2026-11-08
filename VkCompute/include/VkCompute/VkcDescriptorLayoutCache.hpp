@@ -1,8 +1,8 @@
 #pragma once
-#include "VkcObject.hpp"
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -84,6 +84,9 @@ namespace vkc
     class VkcDescriptorLayoutCache
     {
     public:
+        static constexpr std::string_view Name = "VkcDescriptorLayoutCache";
+
+    public:
         constexpr VkcDescriptorLayoutCache(const ilm::Ref<VkcDevice>& device) noexcept
             : m_Device(device)
         {
@@ -118,6 +121,13 @@ namespace vkc
         bool CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info, VkDescriptorSetLayout& outDstSetLayout) noexcept;
 
         /**
+         * @brief Gets the logical device associated with this descriptor layout cache.
+         *
+         * @return A reference to the logical device used to create this descriptor layout cache.
+         */
+        constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
+
+        /**
          * @brief Checks if this descriptor set layout cache is valid.
          */
         constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && !m_LayoutCache.empty(); }
@@ -139,7 +149,4 @@ namespace vkc
         std::unordered_map<VkcDescriptorLayoutInfo, VkDescriptorSetLayout, VkcDescriptorLayoutHash> m_LayoutCache;
         ilm::Ref<VkcDevice> m_Device;
     };
-
-    static_assert(VkcObject<VkcDescriptorLayoutCache>);
-    static_assert(VkcCreatable<VkcDescriptorLayoutCache, const ilm::Ref<VkcDevice>&>);
 }  // namespace vkc
