@@ -33,5 +33,12 @@ namespace vkc
         requires (!std::copy_constructible<T>);
         requires (!std::move_constructible<T>);
     } && VkcNamedObject<T>;
+
+    template<typename T>
+    concept VkcDeviceOwningObject = requires(const T & obj)
+    {
+        { obj.GetDevice() } -> std::same_as<ilm::Ref<VkcDevice>>;
+    } && VkcObject<T>;
+
     // clang-format on
 }  // namespace vkc

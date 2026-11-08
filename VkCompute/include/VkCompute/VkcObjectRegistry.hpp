@@ -65,5 +65,12 @@ namespace vkc
         VkcDevice,
         VkcShader
     >;
+
+    using VkcDeviceOwningObjects = VkcObjectGroup<
+        VkcDescriptorAllocator,
+        VkcDescriptorBuilder,
+        VkcShader
+    >;
+
     // clang-format on
 }  // namespace vkc
