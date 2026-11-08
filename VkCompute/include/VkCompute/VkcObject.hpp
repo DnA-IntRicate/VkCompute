@@ -10,8 +10,8 @@ namespace vkc
     template<typename T>
     concept VkcObject = requires(T obj)
     {
-        { obj.Destroy() } -> std::same_as<void>;
-        { obj.Valid() } -> std::same_as<bool>;
+        { obj.Destroy() } noexcept -> std::same_as<void>;
+        { obj.Valid() } noexcept -> std::same_as<bool>;
     };
 
     template<typename T, typename... Args>
