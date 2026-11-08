@@ -121,6 +121,13 @@ namespace vkc
         bool CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info, VkDescriptorSetLayout& outDstSetLayout) noexcept;
 
         /**
+         * @brief Gets the logical device associated with this descriptor layout cache.
+         *
+         * @return A reference to the logical device used to create this descriptor layout cache.
+         */
+        constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
+
+        /**
          * @brief Checks if this descriptor set layout cache is valid.
          */
         constexpr bool Valid() const noexcept { return (bool)m_Device && m_Device->Valid() && !m_LayoutCache.empty(); }
