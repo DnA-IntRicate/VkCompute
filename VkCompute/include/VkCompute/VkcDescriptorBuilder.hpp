@@ -159,5 +159,4 @@ namespace vkc
     };
 
     static_assert(VkcObject<VkcDescriptorBuilder>);
-    static_assert(VkcCreatable<VkcDescriptorBuilder, const ilm::Ref<VkcDescriptorAllocator>&, const ilm::Ref<VkcDescriptorLayoutCache>&>);
 }  // namespace vkc

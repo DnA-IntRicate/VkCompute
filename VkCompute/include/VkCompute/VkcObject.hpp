@@ -13,11 +13,5 @@ namespace vkc
         { obj.Destroy() } noexcept -> std::same_as<void>;
         { obj.Valid() } noexcept -> std::same_as<bool>;
     };
-
-    template<typename T, typename... Args>
-    concept VkcCreatable = requires(Args&&... args)
-    {
-        { T::Create(std::forward<Args>(args)...) } -> std::same_as<ilm::Ref<T>>;
-    };
     // clang-format on
 }  // namespace vkc

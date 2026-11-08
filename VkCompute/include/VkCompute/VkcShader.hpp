@@ -130,6 +130,4 @@ namespace vkc
     };
 
     static_assert(VkcObject<VkcShader>);
-    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::filesystem::path&>);
-    static_assert(VkcCreatable<VkcShader, const ilm::Ref<VkcDevice>&, const std::string&, std::span<const uint32_t>>);
 }  // namespace vkc

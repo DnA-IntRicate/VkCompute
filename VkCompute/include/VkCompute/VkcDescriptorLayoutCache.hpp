@@ -141,5 +141,4 @@ namespace vkc
     };
 
     static_assert(VkcObject<VkcDescriptorLayoutCache>);
-    static_assert(VkcCreatable<VkcDescriptorLayoutCache, const ilm::Ref<VkcDevice>&>);
 }  // namespace vkc

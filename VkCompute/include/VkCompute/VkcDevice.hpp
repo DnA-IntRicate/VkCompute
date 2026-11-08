@@ -132,5 +132,4 @@ namespace vkc
     };
 
     static_assert(VkcObject<VkcDevice>);
-    static_assert(VkcCreatable<VkcDevice, const VkcPhysicalDevice&>);
 }  // namespace vkc
