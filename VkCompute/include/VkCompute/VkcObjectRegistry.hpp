@@ -1,4 +1,5 @@
 #pragma once
+#include "VkcBuffer.hpp"
 #include "VkcDescriptorAllocator.hpp"
 #include "VkcDescriptorBuilder.hpp"
 #include "VkcDescriptorLayoutCache.hpp"
@@ -101,7 +102,9 @@ namespace vkc
         VkcDescriptorBuilder,
         VkcDescriptorLayoutCache,
         VkcDevice,
-        VkcShader
+        VkcShader,
+        VkcStorageBuffer,
+        VkcUniformBuffer
     >;
 
     /**

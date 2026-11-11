@@ -44,7 +44,12 @@ namespace vkc
         allocCreateInfo.priority       = 0.0f;
 
         ilm::Ref<VkcBuffer<Kind>> buffer = ilm::CreateRef<VkcBuffer<Kind>>();
-        buffer->m_DebugName = m_DebugName;
+        buffer->m_Allocator              = m_Allocator;
+        buffer->m_DebugName              = m_DebugName;
+        buffer->m_Binding                = m_Binding;
+        buffer->m_Offset                 = m_Offset;
+        buffer->m_Size                   = m_Size;
+
         if (vmaCreateBufferWithAlignment(
                 m_Allocator,
                 &bufferInfo,
@@ -59,7 +64,6 @@ namespace vkc
             vkc::Error("Failed to create buffer '{0}'!", m_DebugName);
             return nullptr;
         }
-
 
         //
         // Descriptor set creation
@@ -79,6 +83,14 @@ namespace vkc
             return nullptr;
         }
 
+        vkc::Success(
+            "Created buffer '{0}' of type '{1}' (binding = {2}, offset = {3}, size = {4}).",
+            m_DebugName,
+            Traits::KindName,
+            m_Binding,
+            m_Offset,
+            m_Size
+        );
         return buffer;
     }
 }  // namespace vkc

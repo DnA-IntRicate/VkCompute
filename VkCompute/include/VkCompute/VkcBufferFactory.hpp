@@ -30,6 +30,7 @@ namespace vkc
     template <>
     struct VkcBufferTraits<VkcBufferKind::StorageBuffer>
     {
+        static constexpr std::string_view KindName       = "StorageBuffer";
         static constexpr VkBufferUsageFlags UsageFlags   = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         static constexpr VkDescriptorType DescriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
@@ -43,6 +44,7 @@ namespace vkc
     template <>
     struct VkcBufferTraits<VkcBufferKind::UniformBuffer>
     {
+        static constexpr std::string_view KindName       = "UniformBuffer";
         static constexpr VkBufferUsageFlags UsageFlags   = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         static constexpr VkDescriptorType DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 

@@ -32,7 +32,7 @@ int main(int argc, char** argv)
                                      .SetName("SampleBuffer")
                                      .SetAllocator(g_Instance.GetAllocator())
                                      .SetDevice(device)
-                                     .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
+                                     .SetMemoryUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
                                      .SetQueueFamilies({ *device->GetQueueFamilyIndices().Compute })
                                      .SetDescriptorAllocator(dstAllocator)
                                      .SetDescriptorLayoutCache(dstLayoutCache)
@@ -46,6 +46,10 @@ int main(int argc, char** argv)
         vkc::Error("FAILED TO CREATE BUFFER!");
     }
 
+    std::vector<unsigned char> v(48, 1);
+    buffer->MapData((void*)v.data(), v.size());
+
+    buffer         = nullptr;
     dstLayoutCache = nullptr;
     dstAllocator   = nullptr;
     demoShader     = nullptr;
