@@ -42,11 +42,48 @@ namespace vkc
         VkcBufferKind m_Kind = VkcBufferKind::None;
 
     private:
+        template<VkcBufferKind Kind>
         friend class VkcBufferFactory;
     };
 
+    template <VkcBufferKind Kind>
+    struct VkcBufferTraits
+    {
+    };
+
+    // SSBO
+    template <>
+    struct VkcBufferTraits<VkcBufferKind::StorageBuffer>
+    {
+        static constexpr VkBufferUsageFlags UsageFlags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        static constexpr VkDescriptorType DescriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        static constexpr VkDeviceSize GetMinOffsetAlignment(const ilm::Ref<VkcDevice>& device) noexcept
+        {
+            return device->GetPhysicalDevice().Props.limits.minStorageBufferOffsetAlignment;
+        }
+    };
+
+    // UBO
+    template <>
+    struct VkcBufferTraits<VkcBufferKind::UniformBuffer>
+    {
+        static constexpr VkBufferUsageFlags UsageFlags   = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        static constexpr VkDescriptorType DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        static constexpr VkDeviceSize GetMinOffsetAlignment(const ilm::Ref<VkcDevice>& device) noexcept
+        {
+            return device->GetPhysicalDevice().Props.limits.minUniformBufferOffsetAlignment;
+        }
+    };
+
+    template <VkcBufferKind Kind>
     class VkcBufferFactory
     {
+    public:
+        static_assert(Kind != VkcBufferKind::None, "VkcBufferKind cannot be None!");
+        using Traits = VkcBufferTraits<Kind>;
+
     public:
         constexpr VkcBufferFactory() = default;
         ~VkcBufferFactory()          = default;
@@ -60,12 +97,6 @@ namespace vkc
         constexpr VkcBufferFactory& SetAllocator(VmaAllocator allocator) noexcept
         {
             m_Allocator = allocator;
-            return *this;
-        }
-
-        constexpr VkcBufferFactory& SetBufferKind(VkcBufferKind kind) noexcept
-        {
-            m_Kind = kind;
             return *this;
         }
 
@@ -114,7 +145,7 @@ namespace vkc
             return *this;
         }
 
-        bool Create(VkcBuffer& outBuffer) const noexcept;
+        ilm::Ref<VkcBuffer> Create() const noexcept;
 
     private:
         std::string m_DebugName;
@@ -134,7 +165,11 @@ namespace vkc
         size_t m_Binding = 0;
         size_t m_Offset  = 0;
         size_t m_Size    = 0;
-
-        VkcBufferKind m_Kind = VkcBufferKind::None;
     };
+
+    extern template class VkcBufferFactory<VkcBufferKind::StorageBuffer>;
+    extern template class VkcBufferFactory<VkcBufferKind::UniformBuffer>;
+
+    typedef VkcBufferFactory<VkcBufferKind::StorageBuffer> VkcStorageBufferFactory;
+    typedef VkcBufferFactory<VkcBufferKind::UniformBuffer> VkcUniformBufferFactory;
 }  // namespace vkc

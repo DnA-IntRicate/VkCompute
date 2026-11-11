@@ -6,45 +6,11 @@
 
 namespace vkc
 {
-    static constexpr VkBufferUsageFlags BufferKindToUsageFlags(VkcBufferKind kind) noexcept
-    {
-        switch (kind)
-        {
-            case VkcBufferKind::StorageBuffer: return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-            case VkcBufferKind::UniformBuffer: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        }
+    template class VkcBufferFactory<VkcBufferKind::StorageBuffer>;
+    template class VkcBufferFactory<VkcBufferKind::UniformBuffer>;
 
-        VKC_ASSERT(false, "VkcBufferKind was None!");
-        return 0;
-    }
-
-    static constexpr VkDescriptorType BufferKindToDescriptorType(VkcBufferKind kind) noexcept
-    {
-        switch (kind)
-        {
-            case VkcBufferKind::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-            case VkcBufferKind::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        }
-
-        VKC_ASSERT(false, "VkcBufferKind was None!");
-        return (VkDescriptorType)0;
-    }
-
-    static constexpr VkDeviceSize GetMinOffsetAlignment(const ilm::Ref<VkcDevice>& device, VkcBufferKind kind) noexcept
-    {
-        const auto& limits = device->GetPhysicalDevice().Props.limits;
-        switch (kind)
-        {
-            case VkcBufferKind::StorageBuffer: return limits.minStorageBufferOffsetAlignment;
-            case VkcBufferKind::UniformBuffer: return limits.minUniformBufferOffsetAlignment;
-        }
-
-        VKC_ASSERT(false, "VkcBufferKind was None!");
-        return 0;
-    }
-
-    // TODO(Adam): Return an ilm::Ref to a buffer instead!
-    bool VkcBufferFactory::Create(VkcBuffer& outBuffer) const noexcept
+    template<VkcBufferKind Kind>
+    ilm::Ref<VkcBuffer> VkcBufferFactory<Kind>::Create() const noexcept
     {
         //
         // Buffer creation
@@ -55,7 +21,7 @@ namespace vkc
         bufferInfo.pNext                 = nullptr;
         bufferInfo.flags                 = 0;
         bufferInfo.size                  = m_Size;
-        bufferInfo.usage                 = BufferKindToUsageFlags(m_Kind);
+        bufferInfo.usage                 = Traits::UsageFlags;
         bufferInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
         bufferInfo.queueFamilyIndexCount = m_QueueFamilyIndexCount;
         bufferInfo.pQueueFamilyIndices   = m_QueueFamilyIndices;
@@ -74,42 +40,43 @@ namespace vkc
         allocCreateInfo.pUserData      = nullptr;
         allocCreateInfo.priority       = 0.0f;
 
+        ilm::Ref<VkcBuffer> buffer = ilm::CreateRef<VkcBuffer>();
         if (vmaCreateBufferWithAlignment(
                 m_Allocator,
                 &bufferInfo,
                 &allocCreateInfo,
-                GetMinOffsetAlignment(m_Device, m_Kind),
-                &outBuffer.m_Buffer,
-                &outBuffer.m_Allocation,
-                &outBuffer.m_AllocationInfo
+                Traits::GetMinOffsetAlignment(m_Device),
+                &buffer->m_Buffer,
+                &buffer->m_Allocation,
+                &buffer->m_AllocationInfo
             )
             != VK_SUCCESS)
         {
             vkc::Error("Failed to create buffer '{0}'!", m_DebugName);
-            return false;
+            return nullptr;
         }
 
-        outBuffer.m_DebugName = m_DebugName;
-        outBuffer.m_Kind      = m_Kind;
+        buffer->m_DebugName = m_DebugName;
+        buffer->m_Kind      = Kind;
 
         //
         // Descriptor set creation
         //
 
         VkDescriptorBufferInfo dstInfo{};
-        dstInfo.buffer = outBuffer.m_Buffer;
+        dstInfo.buffer = buffer->m_Buffer;
         dstInfo.offset = m_Offset;
         dstInfo.range  = m_Size;
 
         // TODO(Adam): Maybe get this to follow the factory pattern too
         ilm::Ref<VkcDescriptorBuilder> dstBuilder = VkcDescriptorBuilder::Create(m_DstAllocator, m_DstLayoutCache);
-        dstBuilder->BindBuffer(m_Binding, dstInfo, BufferKindToDescriptorType(m_Kind));
-        if (!dstBuilder->Build(outBuffer.m_DstSet))
+        dstBuilder->BindBuffer(m_Binding, dstInfo, Traits::DescriptorType);
+        if (!dstBuilder->Build(buffer->m_DstSet))
         {
             vkc::Error("Failed to allocate descriptor sets for buffer '{0}'!", m_DebugName);
-            return false;
+            return nullptr;
         }
 
-        return true;
+        return buffer;
     }
 }  // namespace vkc

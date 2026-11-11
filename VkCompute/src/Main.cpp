@@ -27,19 +27,19 @@ int main(int argc, char** argv)
     vkc::Warn("Shader valid: {0}", demoShader->Valid());
 
     // The buffer creation pattern we want
-    VkcBuffer buffer;
-    if (!VkcBufferFactory()
-             .SetName("SampleBuffer")
-             .SetAllocator(g_Instance.GetAllocator())
-             .SetBufferKind(VkcBufferKind::StorageBuffer)
-             .SetDevice(device)
-             .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
-             .SetDescriptorAllocator(dstAllocator)
-             .SetDescriptorLayoutCache(dstLayoutCache)
-             .SetBinding(0)
-             .SetOffset(0)
-             .SetSize(48)
-             .Create(buffer))
+    ilm::Ref<VkcBuffer> buffer = VkcUniformBufferFactory()
+                                     .SetName("SampleBuffer")
+                                     .SetAllocator(g_Instance.GetAllocator())
+                                     .SetDevice(device)
+                                     .SetMemoryUsage(VMA_MEMORY_USAGE_AUTO)
+                                     .SetDescriptorAllocator(dstAllocator)
+                                     .SetDescriptorLayoutCache(dstLayoutCache)
+                                     .SetBinding(0)
+                                     .SetOffset(0)
+                                     .SetSize(48)
+                                     .Create();
+
+    if (!buffer)
     {
         vkc::Error("FAILED TO CREATE BUFFER!");
     }
