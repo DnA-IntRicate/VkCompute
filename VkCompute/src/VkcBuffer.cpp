@@ -19,9 +19,7 @@ namespace vkc
     template <VkcBufferKind Kind>
     void VkcBuffer<Kind>::Destroy() noexcept
     {
-        if (m_Mapping)
-            UnmapMemory();
-
+        UnmapMemory();
         if (m_Allocator && m_Buffer && m_Allocation)
         {
             vmaDestroyBuffer(m_Allocator, m_Buffer, m_Allocation);
@@ -43,8 +41,11 @@ namespace vkc
     template <VkcBufferKind Kind>
     void VkcBuffer<Kind>::UnmapMemory() noexcept
     {
-        vmaUnmapMemory(m_Allocator, m_Allocation);
-        m_Mapping = nullptr;
+        if (m_Mapping)
+        {
+            vmaUnmapMemory(m_Allocator, m_Allocation);
+            m_Mapping = nullptr;
+        }
     }
 
     template <VkcBufferKind Kind>

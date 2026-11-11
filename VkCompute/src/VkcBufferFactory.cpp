@@ -74,7 +74,7 @@ namespace vkc
         dstInfo.offset = m_Offset;
         dstInfo.range  = m_Size;
 
-        // TODO(Adam): Maybe get this to follow the factory pattern too
+        // TODO(Adam): Maybe get this to follow the factory pattern too?
         ilm::Ref<VkcDescriptorBuilder> dstBuilder = VkcDescriptorBuilder::Create(m_DstAllocator, m_DstLayoutCache);
         dstBuilder->BindBuffer(m_Binding, dstInfo, Traits::DescriptorType);
         if (!dstBuilder->Build(buffer->m_DstSet))
