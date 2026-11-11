@@ -268,7 +268,10 @@ namespace vkc
 
         m_Device = VkcDevice::Create(physicalDevice);
         if (m_Device->Valid())
+        {
+            volkLoadDevice(m_Device->GetDevice());
             vkc::Success("Created logical device.");
+        }
 
         vkc::Assert(CreateVmaAllocator(m_Instance, m_Device, m_Allocator) == VK_SUCCESS, "Failed to create VMA allocator!");
         vkc::Success("Created VMA allocator.");
@@ -279,6 +282,13 @@ namespace vkc
         vkc::Warn("Vulkan shutting-down...");
 
         m_Device->WaitIdle();
+
+        if (m_Allocator)
+        {
+            vmaDestroyAllocator(m_Allocator);
+            m_Allocator = nullptr;
+        }
+
         m_Device->Destroy();
         m_Device = nullptr;
 
@@ -286,12 +296,6 @@ namespace vkc
         {
             DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
             m_DebugMessenger = nullptr;
-        }
-
-        if (m_Allocator)
-        {
-            vmaDestroyAllocator(m_Allocator);
-            m_Allocator = nullptr;
         }
 
         if (m_Instance)
