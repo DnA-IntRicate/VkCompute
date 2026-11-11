@@ -6,44 +6,96 @@
 
 namespace vkc
 {
-    constexpr float COMPUTE_QUEUE_PRIORITY = 1.0f;
+    constexpr float QUEUE_PRIORITY = 1.0f;
 
     VkcDevice::VkcDevice(const VkcPhysicalDevice& physicalDevice) noexcept
         : m_PhysicalDevice(physicalDevice)
     {
-        VkDeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.pNext            = nullptr;
-        queueCreateInfo.flags            = 0;
-        queueCreateInfo.queueFamilyIndex = m_PhysicalDevice.ComputeQueueFamilyIndex;
-        queueCreateInfo.queueCount       = 1;
-        queueCreateInfo.pQueuePriorities = &COMPUTE_QUEUE_PRIORITY;
+        const VkcQueueFamilyIndices& qfIndices = m_PhysicalDevice.QueueFamilyIndices;
+
+        std::vector<VkDeviceQueueCreateInfo> qcInfos;
+        std::vector<float> queuePriorities;
+
+        qcInfos.reserve(3);
+        queuePriorities.reserve(3);
+
+        // Specify the required queues to create during device creation
+        const auto addQueueFamily = [&](std::optional<uint32_t> qfIndex)
+        {
+            if (!qfIndex)
+                return;
+
+            // Avoid creating multiple queue-info structs for the same family
+            uint32_t idx = *qfIndex;
+            if (std::ranges::any_of(qcInfos, [idx](const auto& info) { return info.queueFamilyIndex == idx; }))
+                return;
+
+            queuePriorities.push_back(QUEUE_PRIORITY);
+            qcInfos.emplace_back(
+                VkDeviceQueueCreateInfo{ .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                                         .pNext            = nullptr,
+                                         .flags            = 0,
+                                         .queueFamilyIndex = idx,
+                                         .queueCount       = 1,
+                                         .pQueuePriorities = &queuePriorities.back() }
+            );
+        };
+
+        addQueueFamily(qfIndices.Compute);
+        addQueueFamily(qfIndices.Graphics);
+        addQueueFamily(qfIndices.Transfer);
 
         VkDeviceCreateInfo deviceCreateInfo{};
         deviceCreateInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         deviceCreateInfo.pNext                = nullptr;
         deviceCreateInfo.flags                = 0;
-        deviceCreateInfo.queueCreateInfoCount = 1;
-        deviceCreateInfo.pQueueCreateInfos    = &queueCreateInfo;
+        deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(qcInfos.size());
+        deviceCreateInfo.pQueueCreateInfos    = qcInfos.data();
         deviceCreateInfo.pEnabledFeatures     = nullptr;
         VkResult err                          = vkCreateDevice(m_PhysicalDevice.Handle, &deviceCreateInfo, nullptr, &m_Device);
 
         // We actualy want this assert to run even on Release builds.
         vkc::Assert(err == VK_SUCCESS, "Failed to create logical device!");
 
-        // Get compute queue from device
-        vkGetDeviceQueue(m_Device, GetComputeQueueFamilyIndex(), 0, &m_ComputeQueue);
+        // Get device queues
+        if (qfIndices.Compute)
+        {
+            vkGetDeviceQueue(m_Device, *qfIndices.Compute, 0, &m_ComputeQueue);
+            vkc::Success("Created compute queue family at index {0}.", *qfIndices.Compute);
+        }
 
-        // Create device command pool
-        VkCommandPoolCreateInfo poolCreateInfo{};
-        poolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolCreateInfo.pNext            = nullptr;
-        poolCreateInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        poolCreateInfo.queueFamilyIndex = GetComputeQueueFamilyIndex();
-        err                             = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &m_CommandPool);
+        if (qfIndices.Graphics)
+        {
+            vkGetDeviceQueue(m_Device, *qfIndices.Graphics, 0, &m_GraphicsQueue);
+            vkc::Success("Created graphics queue family at index {0}.", *qfIndices.Graphics);
+        }
 
-        // We actualy want this assert to run even on Release builds.
-        vkc::Assert(err == VK_SUCCESS, "Failed to create logical device command pool!");
+        if (qfIndices.Transfer)
+        {
+            vkGetDeviceQueue(m_Device, *qfIndices.Transfer, 0, &m_TransferQueue);
+            vkc::Success("Created transfer queue family at index {0}.", *qfIndices.Transfer);
+        }
+
+        // Create device command pools, 1 per queue
+        const auto createCommandPool = [&](std::optional<uint32_t> qfIndex, VkCommandPool& pool)
+        {
+            if (!qfIndex)
+                return;
+
+            VkCommandPoolCreateInfo poolCreateInfo{};
+            poolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            poolCreateInfo.pNext            = nullptr;
+            poolCreateInfo.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+            poolCreateInfo.queueFamilyIndex = *qfIndex;
+            err                             = vkCreateCommandPool(m_Device, &poolCreateInfo, nullptr, &pool);
+
+            // We actualy want this assert to run even on Release builds.
+            vkc::Assert(err == VK_SUCCESS, "Failed to create logical device command pool!");
+        };
+
+        createCommandPool(qfIndices.Compute, m_ComputeCommandPool);
+        createCommandPool(qfIndices.Graphics, m_GraphicsCommandPool);
+        createCommandPool(qfIndices.Transfer, m_TransferCommandPool);
     }
 
     VkcDevice::~VkcDevice() noexcept
@@ -53,10 +105,22 @@ namespace vkc
 
     void VkcDevice::Destroy() noexcept
     {
-        if (m_CommandPool)
+        if (m_ComputeCommandPool)
         {
-            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
-            m_CommandPool = nullptr;
+            vkDestroyCommandPool(m_Device, m_ComputeCommandPool, nullptr);
+            m_ComputeCommandPool = nullptr;
+        }
+
+        if (m_GraphicsCommandPool)
+        {
+            vkDestroyCommandPool(m_Device, m_GraphicsCommandPool, nullptr);
+            m_GraphicsCommandPool = nullptr;
+        }
+
+        if (m_TransferCommandPool)
+        {
+            vkDestroyCommandPool(m_Device, m_TransferCommandPool, nullptr);
+            m_TransferCommandPool = nullptr;
         }
 
         if (m_Device)
@@ -64,6 +128,8 @@ namespace vkc
             vkDestroyDevice(m_Device, nullptr);
             m_Device       = nullptr;
             m_ComputeQueue = nullptr;
+            m_GraphicsQueue = nullptr;
+            m_TransferQueue = nullptr;
 
             vkc::Warn("Destroyed logical device instance of device '{}'.", m_PhysicalDevice.Props.deviceName);
         }
@@ -100,19 +166,38 @@ namespace vkc
             std::vector<VkQueueFamilyProperties> queueFamilies(static_cast<size_t>(qfCount));
             vkGetPhysicalDeviceQueueFamilyProperties(pDevice, &qfCount, queueFamilies.data());
 
-            bool computeEnabled              = false;
-            uint32_t computeQueueFamilyIndex = (uint32_t)-1;
+            VkcQueueFamilyIndices qfIndices{};
             for (const auto& [queueFamilyIndex, qf] : std::views::enumerate(queueFamilies))
             {
-                if ((qf.queueCount > 0) && (qf.queueFlags & VK_QUEUE_COMPUTE_BIT))
+                if (qf.queueCount == 0)
+                    continue;
+
+                const uint32_t index     = static_cast<uint32_t>(queueFamilyIndex);
+                const VkQueueFlags flags = qf.queueFlags;
+
+                const bool supportsGraphics = (flags & VK_QUEUE_GRAPHICS_BIT) != 0;
+                const bool supportsCompute  = (flags & VK_QUEUE_COMPUTE_BIT) != 0;
+                const bool supportsTransfer = (flags & VK_QUEUE_TRANSFER_BIT) != 0;
+
+                if (supportsCompute)
                 {
-                    computeEnabled          = true;
-                    computeQueueFamilyIndex = static_cast<uint32_t>(queueFamilyIndex);
-                    break;
+                    // Prefer dedicated compute queues.
+                    if (!qfIndices.Compute || !supportsGraphics)
+                        qfIndices.Compute = index;
+                }
+
+                if (supportsGraphics && !qfIndices.Graphics)
+                    qfIndices.Graphics = index;
+
+                if (supportsTransfer)
+                {
+                    // Prefer dedicated transfer queues.
+                    if (!qfIndices.Transfer || (!supportsGraphics && !supportsCompute))
+                        qfIndices.Transfer = index;
                 }
             }
 
-            devices.emplace_back(pDevice, deviceIndex, props, computeEnabled, computeQueueFamilyIndex);
+            devices.emplace_back(pDevice, deviceIndex, props, qfIndices);
         }
 
         return devices;
