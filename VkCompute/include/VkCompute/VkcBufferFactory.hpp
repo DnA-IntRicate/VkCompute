@@ -11,14 +11,15 @@
 
 namespace vkc
 {
-    class VkcBuffer;
-
     enum class VkcBufferKind
     {
         None = 0,
         StorageBuffer,
         UniformBuffer
     };
+
+    template <VkcBufferKind Kind>
+    class VkcBuffer;
 
     template <VkcBufferKind Kind>
     struct VkcBufferTraits
@@ -122,7 +123,7 @@ namespace vkc
             return *this;
         }
 
-        ilm::Ref<VkcBuffer> Create() const noexcept;
+        ilm::Ref<VkcBuffer<Kind>> Create() const noexcept;
 
     private:
         std::string m_DebugName;

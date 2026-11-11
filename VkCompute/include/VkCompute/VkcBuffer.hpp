@@ -9,16 +9,17 @@
 
 namespace vkc
 {
-    // Should we template this out too?
+    template <VkcBufferKind Kind>
     class VkcBuffer
     {
     public:
         static constexpr std::string_view Name = "VkcBuffer";
 
     public:
-        // Usual methods here....
-        // SetData goes here! NOT in the factory
         constexpr VkcBuffer() = default;
+
+        // Dtors and everything now...
+
 
     private:
         VkBuffer m_Buffer          = nullptr;
@@ -26,14 +27,12 @@ namespace vkc
         VmaAllocation m_Allocation = nullptr;
         VmaAllocationInfo m_AllocationInfo{};
 
-        // The buffer should probably also contain a device reference?
-        // That MUST be populated from the buffer factory!
-
         std::string m_DebugName;
-        VkcBufferKind m_Kind = VkcBufferKind::None;
 
     private:
-        template<VkcBufferKind Kind>
-        friend class VkcBufferFactory;
+        friend class VkcBufferFactory<Kind>;
     };
+
+    typedef VkcBuffer<VkcBufferKind::StorageBuffer> VkcStorageBuffer;
+    typedef VkcBuffer<VkcBufferKind::UniformBuffer> VkcUniformBuffer;
 }  // namespace vkc

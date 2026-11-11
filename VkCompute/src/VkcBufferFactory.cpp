@@ -11,7 +11,7 @@ namespace vkc
     template class VkcBufferFactory<VkcBufferKind::UniformBuffer>;
 
     template <VkcBufferKind Kind>
-    ilm::Ref<VkcBuffer> VkcBufferFactory<Kind>::Create() const noexcept
+    ilm::Ref<VkcBuffer<Kind>> VkcBufferFactory<Kind>::Create() const noexcept
     {
         //
         // Buffer creation
@@ -43,7 +43,8 @@ namespace vkc
         allocCreateInfo.pUserData      = nullptr;
         allocCreateInfo.priority       = 0.0f;
 
-        ilm::Ref<VkcBuffer> buffer = ilm::CreateRef<VkcBuffer>();
+        ilm::Ref<VkcBuffer<Kind>> buffer = ilm::CreateRef<VkcBuffer<Kind>>();
+        buffer->m_DebugName = m_DebugName;
         if (vmaCreateBufferWithAlignment(
                 m_Allocator,
                 &bufferInfo,
@@ -59,8 +60,6 @@ namespace vkc
             return nullptr;
         }
 
-        buffer->m_DebugName = m_DebugName;
-        buffer->m_Kind      = Kind;
 
         //
         // Descriptor set creation

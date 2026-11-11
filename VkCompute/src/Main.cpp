@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     vkc::Warn("Shader valid: {0}", demoShader->Valid());
 
     // The buffer creation pattern we want
-    ilm::Ref<VkcBuffer> buffer = VkcUniformBufferFactory()
+    ilm::Ref<VkcUniformBuffer> buffer = VkcUniformBufferFactory()
                                      .SetName("SampleBuffer")
                                      .SetAllocator(g_Instance.GetAllocator())
                                      .SetDevice(device)
