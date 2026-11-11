@@ -1,6 +1,7 @@
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
 #include <VkCompute/VkcBuffer.hpp>
+#include <VkCompute/VkcBufferFactory.hpp>
 #include <VkCompute/VkcDescriptorAllocator.hpp>
 #include <VkCompute/VkcDescriptorBuilder.hpp>
 #include <VkCompute/VkcDescriptorLayoutCache.hpp>
