@@ -7,6 +7,7 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 #include <string_view>
+#include <vector>
 
 
 namespace vkc
@@ -55,7 +56,7 @@ namespace vkc
     template <>
     struct VkcBufferTraits<VkcBufferKind::StorageBuffer>
     {
-        static constexpr VkBufferUsageFlags UsageFlags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        static constexpr VkBufferUsageFlags UsageFlags   = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         static constexpr VkDescriptorType DescriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
         static constexpr VkDeviceSize GetMinOffsetAlignment(const ilm::Ref<VkcDevice>& device) noexcept
@@ -112,8 +113,11 @@ namespace vkc
             return *this;
         }
 
-        // TODO: queue setters
-        // TODO: queue setters
+        constexpr VkcBufferFactory& SetQueueFamilies(const std::vector<uint32_t>& indices) noexcept
+        {
+            m_QueueFamilies = indices;
+            return *this;
+        }
 
         constexpr VkcBufferFactory& SetDescriptorAllocator(const ilm::Ref<VkcDescriptorAllocator>& allocator) noexcept
         {
@@ -157,10 +161,7 @@ namespace vkc
         VmaAllocator m_Allocator = nullptr;
         VmaMemoryUsage m_Usage   = VMA_MEMORY_USAGE_AUTO;
 
-        // TODO(Adam): Wrap in a span?
-        // Or we can just get this straight from the device!
-        uint32_t m_QueueFamilyIndexCount     = 0;
-        const uint32_t* m_QueueFamilyIndices = nullptr;
+        std::vector<uint32_t> m_QueueFamilies;
 
         size_t m_Binding = 0;
         size_t m_Offset  = 0;

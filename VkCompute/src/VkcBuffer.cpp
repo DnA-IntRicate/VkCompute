@@ -16,15 +16,17 @@ namespace vkc
         // Buffer creation
         //
 
+        const uint32_t qfIndexCount = static_cast<uint32_t>(m_QueueFamilies.size());
+
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.pNext                 = nullptr;
         bufferInfo.flags                 = 0;
         bufferInfo.size                  = m_Size;
         bufferInfo.usage                 = Traits::UsageFlags;
-        bufferInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-        bufferInfo.queueFamilyIndexCount = m_QueueFamilyIndexCount;
-        bufferInfo.pQueueFamilyIndices   = m_QueueFamilyIndices;
+        bufferInfo.sharingMode           = (qfIndexCount <= 1) ? VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
+        bufferInfo.queueFamilyIndexCount = qfIndexCount;
+        bufferInfo.pQueueFamilyIndices   = m_QueueFamilies.data();
 
         //
         // Buffer + allocation creation
