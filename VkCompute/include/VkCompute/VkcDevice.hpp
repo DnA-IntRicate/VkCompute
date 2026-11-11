@@ -2,6 +2,7 @@
 #include <Ilm/Ilm.hpp>
 #include <Volk/volk.h>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -10,6 +11,18 @@
 namespace vkc
 {
     /**
+     * @brief Stores the device-specific indices to different queue types.
+     */
+    struct VkcQueueFamilyIndices
+    {
+        constexpr VkcQueueFamilyIndices() = default;
+
+        std::optional<uint32_t> Compute;
+        std::optional<uint32_t> Graphics;
+        std::optional<uint32_t> Transfer;
+    };
+
+    /**
      * @brief Stores relevant information about a physical graphics device including its Vulkan handle.
      */
     struct VkcPhysicalDevice
@@ -17,12 +30,10 @@ namespace vkc
         constexpr VkcPhysicalDevice(
             VkPhysicalDevice handle,
             uint32_t index,
-            const char* name,
-            VkPhysicalDeviceType type,
-            bool computeEnabled,
-            uint32_t computeQfIndex
+            VkPhysicalDeviceProperties props,
+            const VkcQueueFamilyIndices& qfIndices
         ) noexcept
-            : Handle(handle), Index(index), Name(name), Type(type), ComputeEnabled(computeEnabled), ComputeQueueFamilyIndex(computeQfIndex)
+            : Handle(handle), Index(index), Props(props), QueueFamilyIndices(qfIndices)
         {
         }
 
@@ -36,17 +47,14 @@ namespace vkc
         // The physical index of the device
         uint32_t Index = 0;
 
-        // THe name of the device
-        std::string Name;
+        // Stores the properties of the physical device
+        VkPhysicalDeviceProperties Props{};
 
-        // The device type (discrete, integrated or virtual GPU/CPU)
-        VkPhysicalDeviceType Type = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+        // This device's queue family indices
+        VkcQueueFamilyIndices QueueFamilyIndices;
 
         // Does this device support GPU compute
-        bool ComputeEnabled = false;
-
-        // The index of the device's compute queue family
-        uint32_t ComputeQueueFamilyIndex = 0;
+        const bool ComputeEnabled = QueueFamilyIndices.Compute.has_value();
     };
 
     /**
@@ -93,9 +101,9 @@ namespace vkc
         constexpr uint32_t GetDeviceIndex() const noexcept { return GetPhysicalDevice().Index; }
 
         /**
-         * @brief Get the index of this device's compute queue family.
+         * @brief Get the queue family indices of this device.
          */
-        constexpr uint32_t GetComputeQueueFamilyIndex() const noexcept { return GetPhysicalDevice().ComputeQueueFamilyIndex; }
+        constexpr VkcQueueFamilyIndices GetQueueFamilyIndices() const noexcept { return GetPhysicalDevice().QueueFamilyIndices; }
 
         /**
          * @brief Get the Vulkan handle of this logical device instance.
@@ -108,9 +116,29 @@ namespace vkc
         constexpr VkQueue GetComputeQueue() const noexcept { return m_ComputeQueue; }
 
         /**
-         * @brief Get the Vulkan handle of this instance's command pool.
+         * @brief Get the Vulkan handle of this instance's compute command pool.
          */
-        constexpr VkCommandPool GetCommandPool() const noexcept { return m_CommandPool; }
+        constexpr VkCommandPool GetComputeCommandPool() const noexcept { return m_ComputeCommandPool; }
+
+        /**
+         * @brief Get the Vulkan handle of this instance's graphics queue.
+         */
+        constexpr VkQueue GetGraphicsQueue() const noexcept { return m_GraphicsQueue; }
+
+        /**
+         * @brief Get the Vulkan handle of this instance's graphics command pool.
+         */
+        constexpr VkCommandPool GetGraphicsCommandPool() const noexcept { return m_GraphicsCommandPool; }
+
+        /**
+         * @brief Get the Vulkan handle of this instance's transfer queue.
+         */
+        constexpr VkQueue GetTransferQueue() const noexcept { return m_TransferQueue; }
+
+        /**
+         * @brief Get the Vulkan handle of this instance's transfer command pool.
+         */
+        constexpr VkCommandPool GetTransferCommandPool() const noexcept { return m_TransferCommandPool; }
 
         /**
          * @brief Checks if this device is valid.
@@ -132,8 +160,15 @@ namespace vkc
 
     private:
         VkcPhysicalDevice m_PhysicalDevice;
-        VkDevice m_Device           = nullptr;
-        VkQueue m_ComputeQueue      = nullptr;
-        VkCommandPool m_CommandPool = nullptr;
+        VkDevice m_Device = nullptr;
+
+        VkQueue m_ComputeQueue             = nullptr;
+        VkCommandPool m_ComputeCommandPool = nullptr;
+
+        VkQueue m_GraphicsQueue             = nullptr;
+        VkCommandPool m_GraphicsCommandPool = nullptr;
+
+        VkQueue m_TransferQueue             = nullptr;
+        VkCommandPool m_TransferCommandPool = nullptr;
     };
 }  // namespace vkc
