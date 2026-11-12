@@ -1,7 +1,6 @@
 #pragma once
 #include "VkcBuffer.hpp"
-#include "VkcDescriptorAllocator.hpp"
-#include "VkcDescriptorLayoutCache.hpp"
+#include "VkcDescriptorBuilder.hpp"
 #include "VkcShader.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
@@ -48,8 +47,6 @@ namespace vkc
     struct VkcPipelineInput
     {
         /** @brief A variant over the possible shader resource inputs for a pipeline. */
-        // TODO(Adam): This exact type is used here AND by the dst builder, maybe we should typedef this somewhere else
-        // Probably in VkcBuffer?
         using ResourceType = std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>>;
 
         constexpr VkcPipelineInput(const ResourceType& res, size_t offset) noexcept
@@ -61,7 +58,7 @@ namespace vkc
 
         ResourceType Resource;
         // size_t Binding = 0;
-        size_t Offset = 0;
+        size_t Offset  = 0;
     };
 
     template <VkcPipelineKind Kind>
@@ -100,18 +97,6 @@ namespace vkc
             return *this;
         }
 
-        constexpr VkcPipelineFactory& SetDescriptorAllocator(const ilm::Ref<VkcDescriptorAllocator>& alloc) noexcept
-        {
-            m_DstAllocator = alloc;
-            return *this;
-        }
-
-        constexpr VkcPipelineFactory& SetDescriptorLayoutCache(const ilm::Ref<VkcDescriptorLayoutCache>& cache) noexcept
-        {
-            m_DstCache = cache;
-            return *this;
-        }
-
         // TODO(Adam): I don't like the binding + offset being defined in the buffer
         // I think it should rather be defined HERE during pipeline creation!
         template <VkcBufferKind Kind>
@@ -147,8 +132,7 @@ namespace vkc
         ilm::Ref<VkcShader> m_Shader;
         std::string m_EntryPoint = "main";
 
-        ilm::Ref<VkcDescriptorAllocator> m_DstAllocator;
-        ilm::Ref<VkcDescriptorLayoutCache> m_DstCache;
+        ilm::Ref<VkcDescriptorBuilder> m_DstBuilder;
 
         // Maps bindings dst set bindings to their inputs
         std::vector<std::vector<VkcPipelineInput>> m_Inputs;

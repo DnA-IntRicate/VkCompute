@@ -325,7 +325,7 @@ namespace vkc
     };
 
     // Explicit instantiation declarations to avoid redundancies in including TUs
-    // since this templated-class splits contains implementation in a source file.
+    // since this templated-class contains implementation in a source file.
     extern template class VkcBufferFactory<VkcBufferKind::StorageBuffer>;
     extern template class VkcBufferFactory<VkcBufferKind::UniformBuffer>;
 
