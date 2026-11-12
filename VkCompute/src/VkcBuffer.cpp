@@ -11,7 +11,7 @@ namespace vkc
     template class VkcBuffer<VkcBufferKind::UniformBuffer>;
 
     template <VkcBufferKind Kind>
-    VkcBuffer<Kind>::~VkcBuffer()
+    VkcBuffer<Kind>::~VkcBuffer() noexcept
     {
         Destroy();
     }

@@ -43,7 +43,7 @@ namespace vkc
         /**
          * @brief Destroys the buffer resource.
          */
-        ~VkcBuffer();
+        ~VkcBuffer() noexcept;
 
         // Allow copy-assignment by ilm::Ref only
         constexpr VkcBuffer(const VkcBuffer&)            = delete;
