@@ -99,6 +99,7 @@ namespace vkc
          * @param type Type of descriptor being written.
          * @param count Number of descriptors to update. Defaults to 1.
          */
+        // TODO(Adam): Reimplement this when its needed!
         void Update(
             VkDescriptorSet& dstSet,
             uint32_t binding,

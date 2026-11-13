@@ -93,7 +93,7 @@ namespace vkc
         return alloc;
     }
 
-    // TODO(Adam): Reimplement me!
+    // TODO(Adam): Reimplement this when its needed!
     void VkcDescriptorBuilder::Update(
         VkDescriptorSet& dstSet,
         uint32_t binding,
