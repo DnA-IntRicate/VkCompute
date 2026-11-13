@@ -27,6 +27,8 @@ namespace vkc
     public:
         static constexpr std::string_view Name = "VkcBuffer";
 
+        static constexpr VkcBufferKind BufferKind = Kind;
+
     public:
         /**
          * @brief Constructs an empty buffer resource.
@@ -43,7 +45,7 @@ namespace vkc
         /**
          * @brief Destroys the buffer resource.
          */
-        ~VkcBuffer();
+        ~VkcBuffer() noexcept;
 
         // Allow copy-assignment by ilm::Ref only
         constexpr VkcBuffer(const VkcBuffer&)            = delete;
@@ -250,20 +252,6 @@ namespace vkc
         constexpr const std::string& GetName() const noexcept { return m_DebugName; }
 
         /**
-         * @brief Retrieves the descriptor binding associated with the buffer.
-         *
-         * @return Descriptor binding index within the descriptor set layout.
-         */
-        constexpr size_t GetBinding() const noexcept { return m_Binding; }
-
-        /**
-         * @brief Retrieves the descriptor offset into the buffer.
-         *
-         * @return Byte offset from the beginning of the buffer.
-         */
-        constexpr size_t GetOffset() const noexcept { return m_Offset; }
-
-        /**
          * @brief Retrieves the configured buffer size.
          *
          * @return Buffer size in bytes.
@@ -288,10 +276,7 @@ namespace vkc
         // Vulkan buffer handle managed by this resource.
         VkBuffer m_Buffer = nullptr;
 
-        // Descriptor set associated with this buffer.
-        VkDescriptorSet m_DstSet = nullptr;  // TODO(Adam): Dsts should be owned by the pipeline, not the resources themselves!
-
-        // VMA allocator used to manage the buffer allocation
+        // VMA allocator used to manage the buffer allocation.
         VmaAllocator m_Allocator = nullptr;
 
         // VMA allocation backing the Vulkan buffer.
@@ -305,12 +290,6 @@ namespace vkc
 
         // Debug name assigned to the buffer.
         std::string m_DebugName;
-
-        // Descriptor binding index associated with this buffer.
-        size_t m_Binding = 0;
-
-        // Descriptor offset in bytes.
-        size_t m_Offset = 0;
 
         // Configured buffer size in bytes.
         size_t m_Size = 0;
