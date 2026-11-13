@@ -27,6 +27,8 @@ namespace vkc
     public:
         static constexpr std::string_view Name = "VkcBuffer";
 
+        static constexpr VkcBufferKind BufferKind = Kind;
+
     public:
         /**
          * @brief Constructs an empty buffer resource.
