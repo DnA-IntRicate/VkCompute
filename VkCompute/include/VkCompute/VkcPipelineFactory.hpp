@@ -134,7 +134,7 @@ namespace vkc
     private:
         constexpr void SetInputImpl(const VkcPipelineInput::ResourceType& res, size_t binding, size_t offset) noexcept
         {
-            if (m_Inputs.size() >= binding)
+            if (m_Inputs.size() <= binding)
                 m_Inputs.resize(binding + 1);
 
             auto& slot = m_Inputs[binding];

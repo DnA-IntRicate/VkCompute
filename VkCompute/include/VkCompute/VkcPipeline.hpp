@@ -1,5 +1,5 @@
 #pragma once
-#include "VkcBuffer.hpp"
+// #include "VkcBuffer.hpp"
 #include "VkcPipelineFactory.hpp"
 #include "VkcShader.hpp"
 #include <Ilm/Ilm.hpp>
@@ -17,16 +17,24 @@ namespace vkc
     {
     public:
         constexpr VkcPipeline() = default;
-        ~VkcPipeline() noexcept;
+        ~VkcPipeline() noexcept
+        {
+            // TODO(Adam): Impl!
+        }
 
     private:
         VkPipeline m_Pipeline             = nullptr;
         VkPipelineLayout m_PipelineLayout = nullptr;
+
+        std::string m_DebugName;
 
         ilm::Ref<VkcShader> m_Shader;
 
     private:
         friend class VkcPipelineFactory<Kind>;
     };
+
+    /** @brief Convenience alias for a compute pipeline. */
+    typedef VkcPipeline<VkcPipelineKind::Compute> VkcComputePipeline;
 
 }  // namespace vkc

@@ -79,6 +79,13 @@ namespace vkc
         constexpr const std::string& GetName() const noexcept { return m_Name; }
 
         /**
+         * @brief Gets the Vulkan shader module handle.
+         *
+         * @return The Vulkan shader module handle.
+         */
+        constexpr VkShaderModule GetShaderModule() const noexcept { return m_Shader; }
+
+        /**
          * @brief Checks whether this shader module is valid.
          *
          * A shader is considered valid if its logical device exists and is valid,
@@ -124,11 +131,11 @@ namespace vkc
         // The logical device reference.
         ilm::Ref<VkcDevice> m_Device;
 
-        // The underlying Vulkan shader module handle.
-        VkShaderModule m_Shader = nullptr;
-
         // The name of this shader module.
         // Either provided or derived from the source code's file name.
         std::string m_Name;
+
+        // The underlying Vulkan shader module handle.
+        VkShaderModule m_Shader = nullptr;
     };
 }  // namespace vkc
