@@ -27,92 +27,73 @@ namespace vkc
         return res;
     }
 
-    void VkcDescriptorBuilder::BindBuffer(uint32_t binding, VkDescriptorBufferInfo& info, VkDescriptorType type, uint32_t count) noexcept
+    void VkcDescriptorBuilder::BindBuffer(uint32_t binding, size_t offset, const BufferResource& buffer) noexcept
     {
-        // NOTE(Adam): We explicitly configure this for compute only.
-        m_DstSetBindings.emplace_back(
-            VkDescriptorSetLayoutBinding{ .binding            = binding,
-                                          .descriptorType     = type,
-                                          .descriptorCount    = count,
-                                          .stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT,
-                                          .pImmutableSamplers = nullptr }
-        );
+        std::visit(
+            [&](auto&& bufferRef)
+            {
+                using BufferType = std::decay_t<decltype(*bufferRef)>;
+                using Traits     = VkcBufferTraits<BufferType::BufferKind>;
 
-        // The dstSet gets set just before the descriptor-write is performed.
-        m_DstSetWrites.emplace_back(
-            VkWriteDescriptorSet{ .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                                  .pNext            = nullptr,
-                                  .dstSet           = nullptr,
-                                  .dstBinding       = binding,
-                                  .dstArrayElement  = 0,
-                                  .descriptorCount  = count,
-                                  .descriptorType   = type,
-                                  .pImageInfo       = nullptr,
-                                  .pBufferInfo      = &info,
-                                  .pTexelBufferView = nullptr }
+                m_DstBufferInfos.emplace_back(
+                    VkDescriptorBufferInfo{ .buffer = bufferRef->GetBuffer(), .offset = offset, .range = bufferRef->GetSize() }
+                );
+
+                // NOTE(Adam): We explicitly configure this for compute only.
+                m_DstSetBindings.emplace_back(
+                    VkDescriptorSetLayoutBinding{ .binding            = binding,
+                                                  .descriptorType     = Traits::DescriptorType,
+                                                  .descriptorCount    = 1,
+                                                  .stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT,
+                                                  .pImmutableSamplers = nullptr }
+                );
+
+                // The dstSet gets set just before the descriptor-write is performed.
+                m_DstSetWrites.emplace_back(
+                    VkWriteDescriptorSet{ .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                                          .pNext            = nullptr,
+                                          .dstSet           = nullptr,
+                                          .dstBinding       = binding,
+                                          .dstArrayElement  = 0,
+                                          .descriptorCount  = 1,
+                                          .descriptorType   = Traits::DescriptorType,
+                                          .pImageInfo       = nullptr,
+                                          .pBufferInfo      = &m_DstBufferInfos.back(),
+                                          .pTexelBufferView = nullptr }
+                );
+            },
+            buffer
         );
     }
 
-    void VkcDescriptorBuilder::BindBuffers(uint32_t binding, const std::vector<VkDescriptorBufferInfo>& infos, VkDescriptorType type)
-    {
-        const uint32_t count = static_cast<uint32_t>(infos.size());
-
-        // NOTE(Adam): We explicitly configure this for compute only.
-        m_DstSetBindings.emplace_back(
-            VkDescriptorSetLayoutBinding{ .binding            = binding,
-                                          .descriptorType     = type,
-                                          .descriptorCount    = count,
-                                          .stageFlags         = VK_SHADER_STAGE_COMPUTE_BIT,
-                                          .pImmutableSamplers = nullptr }
-        );
-
-        // The dstSet gets set just before the descriptor-write is performed.
-        m_DstSetWrites.emplace_back(
-            VkWriteDescriptorSet{ .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                                  .pNext            = nullptr,
-                                  .dstSet           = nullptr,
-                                  .dstBinding       = binding,
-                                  .dstArrayElement  = 0,
-                                  .descriptorCount  = count,
-                                  .descriptorType   = type,
-                                  .pImageInfo       = nullptr,
-                                  .pBufferInfo      = infos.data(),
-                                  .pTexelBufferView = nullptr }
-        );
-    }
-
-    bool VkcDescriptorBuilder::Build(VkDescriptorSet& outDstSet, VkDescriptorSetLayout& outDstLayout) noexcept
+    VkcDescriptorSetAllocation VkcDescriptorBuilder::Build() noexcept
     {
         VkDescriptorSetLayoutCreateInfo layoutCreateInfo{};
         layoutCreateInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutCreateInfo.pNext        = nullptr;
-        layoutCreateInfo.flags        = {};
+        layoutCreateInfo.flags        = 0;
         layoutCreateInfo.bindingCount = static_cast<uint32_t>(m_DstSetBindings.size());
         layoutCreateInfo.pBindings    = m_DstSetBindings.data();
 
-        if (!m_LayoutCache->CreateDescriptorSetLayout(layoutCreateInfo, outDstLayout))
+        VkDescriptorSetLayout dstLayout;
+        if (!m_LayoutCache->CreateDescriptorSetLayout(layoutCreateInfo, dstLayout))
         {
             vkc::Error("Failed to create descriptor set layout while building descriptors!");
-            return false;
+            return VkcDescriptorSetAllocation(nullptr);
         }
 
         VkcDescriptorSetAllocation alloc;
-        if (!m_Allocator->AllocateSet(outDstLayout, alloc))
+        if (!m_Allocator->AllocateSet(dstLayout, alloc))
         {
             vkc::Error("Failed to allocate descriptor set while building descriptors!");
-            return false;
+            return VkcDescriptorSetAllocation(nullptr);
         }
 
         Update(alloc.DescriptorSet);
-        return true;
+        return alloc;
     }
 
-    bool VkcDescriptorBuilder::Build(VkDescriptorSet& outDstSet) noexcept
-    {
-        VkDescriptorSetLayout layout;
-        return Build(outDstSet, layout);
-    }
-
+    // TODO(Adam): Reimplement me!
     void VkcDescriptorBuilder::Update(
         VkDescriptorSet& dstSet,
         uint32_t binding,
