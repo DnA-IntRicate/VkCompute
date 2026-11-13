@@ -1,6 +1,4 @@
 #pragma once
-#include "VkcDescriptorAllocator.hpp"
-#include "VkcDescriptorLayoutCache.hpp"
 #include "VkcDevice.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vma/vk_mem_alloc.h>
@@ -164,21 +162,6 @@ namespace vkc
         }
 
         /**
-         * @brief Sets the Vulkan Memory Allocator instance used for buffer allocation.
-         *
-         * @param allocator VMA allocator responsible for managing the buffer's memory.
-         *
-         * @return Reference to this factory for method chaining.
-         *
-         * @note The allocator must be valid and compatible with the selected device.
-         */
-        constexpr VkcBufferFactory& SetAllocator(VmaAllocator allocator) noexcept
-        {
-            m_Allocator = allocator;
-            return *this;
-        }
-
-        /**
          * @brief Sets the logical Vulkan device used to create the buffer.
          *
          * @param device Reference to the logical device associated with the buffer.
@@ -191,6 +174,21 @@ namespace vkc
         constexpr VkcBufferFactory& SetDevice(const ilm::Ref<VkcDevice>& device) noexcept
         {
             m_Device = device;
+            return *this;
+        }
+
+        /**
+         * @brief Sets the Vulkan Memory Allocator instance used for buffer allocation.
+         *
+         * @param allocator VMA allocator responsible for managing the buffer's memory.
+         *
+         * @return Reference to this factory for method chaining.
+         *
+         * @note The allocator must be valid and compatible with the selected device.
+         */
+        constexpr VkcBufferFactory& SetAllocator(VmaAllocator allocator) noexcept
+        {
+            m_Allocator = allocator;
             return *this;
         }
 
@@ -222,32 +220,6 @@ namespace vkc
         constexpr VkcBufferFactory& SetQueueFamilies(const std::vector<uint32_t>& indices) noexcept
         {
             m_QueueFamilies = indices;
-            return *this;
-        }
-
-        /**
-         * @brief Sets the descriptor allocator used to allocate the buffer's descriptor set.
-         *
-         * @param allocator Reference to the descriptor allocator.
-         *
-         * @return Reference to this factory for method chaining.
-         */
-        constexpr VkcBufferFactory& SetDescriptorAllocator(const ilm::Ref<VkcDescriptorAllocator>& allocator) noexcept
-        {
-            m_DstAllocator = allocator;
-            return *this;
-        }
-
-        /**
-         * @brief Sets the descriptor layout cache used to retrieve or create the buffer's descriptor layout.
-         *
-         * @param cache Reference to the descriptor layout cache.
-         *
-         * @return Reference to this factory for method chaining.
-         */
-        constexpr VkcBufferFactory& SetDescriptorLayoutCache(const ilm::Ref<VkcDescriptorLayoutCache>& cache) noexcept
-        {
-            m_DstLayoutCache = cache;
             return *this;
         }
 
@@ -309,10 +281,7 @@ namespace vkc
 
     private:
         std::string m_DebugName;
-
         ilm::Ref<VkcDevice> m_Device;
-        ilm::Ref<VkcDescriptorAllocator> m_DstAllocator;
-        ilm::Ref<VkcDescriptorLayoutCache> m_DstLayoutCache;
 
         VmaAllocator m_Allocator = nullptr;
         VmaMemoryUsage m_Usage   = VMA_MEMORY_USAGE_AUTO;

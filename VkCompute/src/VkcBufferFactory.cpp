@@ -2,7 +2,7 @@
 #include <VkCompute/VkcBuffer.hpp>
 #include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
-#include <VkCompute/VkcDescriptorBuilder.hpp>
+#include <VkCompute/VkcBuffer.hpp>
 
 
 namespace vkc
@@ -64,24 +64,6 @@ namespace vkc
             vkc::Error("Failed to create buffer '{0}'!", m_DebugName);
             return nullptr;
         }
-
-        //
-        // Descriptor set creation
-        //
-
-        // VkDescriptorBufferInfo dstInfo{};
-        // dstInfo.buffer = buffer->m_Buffer;
-        // dstInfo.offset = m_Offset;
-        // dstInfo.range  = m_Size;
-
-        // TODO(Adam): Maybe get this to follow the factory pattern too?
-        ilm::Ref<VkcDescriptorBuilder> dstBuilder = VkcDescriptorBuilder::Create(m_DstAllocator, m_DstLayoutCache);
-        // dstBuilder->BindBuffer(m_Binding, dstInfo, Traits::DescriptorType);
-        // if (!dstBuilder->Build(buffer->m_DstSet))
-        // {
-        //     vkc::Error("Failed to allocate descriptor sets for buffer '{0}'!", m_DebugName);
-        //     return nullptr;
-        // }
 
         vkc::Success(
             "Created buffer '{0}' of type '{1}' (binding = {2}, offset = {3}, size = {4}).",

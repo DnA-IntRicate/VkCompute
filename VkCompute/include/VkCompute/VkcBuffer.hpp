@@ -290,9 +290,6 @@ namespace vkc
         // Vulkan buffer handle managed by this resource.
         VkBuffer m_Buffer = nullptr;
 
-        // Descriptor set associated with this buffer.
-        VkDescriptorSet m_DstSet = nullptr;  // TODO(Adam): Dsts should be owned by the pipeline, not the resources themselves!
-
         // VMA allocator used to manage the buffer allocation
         VmaAllocator m_Allocator = nullptr;
 
