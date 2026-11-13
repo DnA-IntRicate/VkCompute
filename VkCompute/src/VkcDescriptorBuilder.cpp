@@ -76,7 +76,7 @@ namespace vkc
         layoutCreateInfo.pBindings    = m_DstSetBindings.data();
 
         VkDescriptorSetLayout dstLayout;
-        if (!m_LayoutCache->CreateDescriptorSetLayout(layoutCreateInfo, dstLayout))
+        if (!m_LayoutCache->GetOrCreateDescriptorSetLayout(layoutCreateInfo, dstLayout))
         {
             vkc::Error("Failed to create descriptor set layout while building descriptors!");
             return VkcDescriptorSetAllocation(nullptr);

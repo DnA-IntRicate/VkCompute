@@ -118,7 +118,7 @@ namespace vkc
          *
          * @returns True if the descriptor set layout was found or created successfully, false otherwise.
          */
-        bool CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info, VkDescriptorSetLayout& outDstSetLayout) noexcept;
+        bool GetOrCreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info, VkDescriptorSetLayout& outDstSetLayout) noexcept;
 
         /**
          * @brief Gets the logical device associated with this descriptor layout cache.
