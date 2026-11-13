@@ -21,27 +21,23 @@ namespace vkc
         // NOTE(Adam): The dst sets must be stored somewhere so that they can be updated/freed
         // It should probably belong to the pipeline!
 
-        const auto createDstSet = [](const std::vector<VkcPipelineInput>& setInputs)
-            {
-                return nullptr;
-            };
+        // const auto createDstSet = [](const std::vector<VkcPipelineInput>& setInputs)
+        //     {
+        //         return nullptr;
+        //     };
 
-        std::vector<VkDescriptorSetLayout> dstSetLayouts;
-        dstSetLayouts.resize(m_Inputs.size());
+        // TODO(Adam): Dst builder STOP ref counting it!
+        VkcDescriptorBuilder dstBuilder(m_DstAllocator, m_DstCache);
+        std::vector<VkcDescriptorSetAllocation> dstSetAllocations;
 
+        // Should we rather not visit?
         for (const auto& [binding, input] : std::views::enumerate(m_Inputs))
         {
             for (const auto& [resource, offset] : input)
-            {
-                // We need to fucking rework the fucking descriptor builder.
+                dstBuilder.BindBuffer(binding, offset, resource);
 
-                // Bind into the dst build here
-                // m_DstBuilder->BindBuffer(binding)
-            }
-
-            // Build here
+            dstSetAllocations.emplace_back(dstBuilder.Build());
         }
-
 
         //
         // Pipeline layout creation
