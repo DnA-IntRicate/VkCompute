@@ -13,13 +13,13 @@ namespace vkc
      */
     struct VkcDescriptorSetAllocation
     {
-        constexpr VkcDescriptorSetAllocation(VkDescriptorSet set, VkDescriptorPool pool) noexcept
-            : DescriptorSet(set), PoolHandle(pool)
+        constexpr VkcDescriptorSetAllocation(VkDescriptorSet set, VkDescriptorSetLayout layout, VkDescriptorPool pool) noexcept
+            : DescriptorSet(set), Layout(layout), PoolHandle(pool)
         {
         }
 
         constexpr VkcDescriptorSetAllocation(std::nullptr_t) noexcept
-            : DescriptorSet(nullptr), PoolHandle(nullptr)
+            : DescriptorSet(nullptr), Layout(nullptr), PoolHandle(nullptr)
         {
         }
 
@@ -41,7 +41,7 @@ namespace vkc
          */
         constexpr bool operator==(const VkcDescriptorSetAllocation& other) const noexcept
         {
-            return (DescriptorSet == other.DescriptorSet) && (PoolHandle == other.PoolHandle);
+            return (DescriptorSet == other.DescriptorSet) && (Layout == other.Layout) && (PoolHandle == other.PoolHandle);
         }
 
         /**
@@ -53,6 +53,11 @@ namespace vkc
          * @brief The descriptor set handle.
          */
         VkDescriptorSet DescriptorSet = nullptr;
+
+        /**
+         * @brief The descriptor set layout handle.
+         */
+        VkDescriptorSetLayout Layout = nullptr;
 
         /**
          * @brief The parent descriptor pool handle that the set was allocated from.

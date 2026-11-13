@@ -1,9 +1,12 @@
 #pragma once
+#include "VkcBuffer.hpp"
+#include "VkcBufferFactory.hpp"
 #include "VkcDescriptorAllocator.hpp"
 #include "VkcDescriptorLayoutCache.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 
@@ -18,6 +21,14 @@ namespace vkc
     class VkcDescriptorBuilder
     {
     public:
+        /**
+         * @brief Tagged-union of all possible buffer resources that can be bound by this descriptor Builder.
+         */
+        using BufferResource = std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>>;
+
+        /**
+         * @brief Human-readable name identifying this type.
+         */
         static constexpr std::string_view Name = "VkcDescriptorBuilder";
 
     public:
@@ -64,50 +75,17 @@ namespace vkc
          * and descriptor type.
          *
          * @param binding Binding index within the descriptor set layout.
-         * @param info Buffer descriptor information describing the buffer, offset,
-         *             and range.
-         * @param type Type of descriptor, such as
-         *             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or
-         *             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER.
-         * @param count Number of descriptors associated with this binding.
-         *              Defaults to 1.
+         * @param offset Offset range within the descriptor set layout.
+         * @param buffer The buffer resource to bind.
          */
-        void BindBuffer(uint32_t binding, VkDescriptorBufferInfo& info, VkDescriptorType type, uint32_t count = 1) noexcept;
-
-        /**
-         * @brief Adds a buffer descriptor binding with explicit shader visibility.
-         *
-         * Configures a descriptor binding using a collection of buffer descriptor
-         * records and the specified shader stages.
-         *
-         * @param binding Binding index within the descriptor set layout.
-         * @param infos Buffer descriptor information records for the binding.
-         * @param type Type of descriptor used by the binding.
-         */
-        void BindBuffers(uint32_t binding, const std::vector<VkDescriptorBufferInfo>& infos, VkDescriptorType type);
+        void BindBuffer(uint32_t binding, size_t offset, const BufferResource& buffer) noexcept;
 
         /**
          * @brief Builds and allocates a descriptor set.
          *
-         * Creates or retrieves the descriptor set layout from the layout cache,
-         * allocates a descriptor set using the descriptor allocator, and applies
-         * the configured descriptor writes.
-         *
-         * @param[out] outDstSet Receives the allocated descriptor set handle.
-         * @param[out] outDstLayout Receives the descriptor set layout handle.
-         *
-         * @return true if the descriptor set was built successfully; otherwise, false.
+         * @return the descriptor set allocation handle.
          */
-        bool Build(VkDescriptorSet& outDstSet, VkDescriptorSetLayout& outDstLayout) noexcept;
-
-        /**
-         * @brief Builds and allocates a descriptor set.
-         *
-         * @param[out] outDstSet Receives the allocated descriptor set handle.
-         *
-         * @return true if the descriptor set was built successfully; otherwise, false.
-         */
-        bool Build(VkDescriptorSet& outDstSet) noexcept;
+        VkcDescriptorSetAllocation Build() noexcept;
 
         /**
          * @brief Updates a descriptor binding in an existing descriptor set.
@@ -121,6 +99,7 @@ namespace vkc
          * @param type Type of descriptor being written.
          * @param count Number of descriptors to update. Defaults to 1.
          */
+        // TODO(Adam): Reimplement this when its needed!
         void Update(
             VkDescriptorSet& dstSet,
             uint32_t binding,
@@ -157,6 +136,7 @@ namespace vkc
         ilm::Ref<VkcDescriptorAllocator> m_Allocator;
         ilm::Ref<VkcDescriptorLayoutCache> m_LayoutCache;
 
+        std::vector<VkDescriptorBufferInfo> m_DstBufferInfos;
         std::vector<VkDescriptorSetLayoutBinding> m_DstSetBindings;
         std::vector<VkWriteDescriptorSet> m_DstSetWrites;
     };

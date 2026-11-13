@@ -22,7 +22,7 @@ namespace vkc
         m_Device = nullptr;
     }
 
-    bool VkcDescriptorLayoutCache::CreateDescriptorSetLayout(
+    bool VkcDescriptorLayoutCache::GetOrCreateDescriptorSetLayout(
         VkDescriptorSetLayoutCreateInfo& info,
         VkDescriptorSetLayout& outDstSetLayout
     ) noexcept

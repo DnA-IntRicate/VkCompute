@@ -1,7 +1,7 @@
 #include <VkCompute/VkcBufferFactory.hpp>
 #include <VkCompute/VkcBuffer.hpp>
 #include <VkCompute/Log.hpp>
-#include <VkCompute/VkcDescriptorBuilder.hpp>
+#include <VkCompute/VkcBuffer.hpp>
 
 
 namespace vkc
@@ -45,8 +45,6 @@ namespace vkc
         ilm::Ref<VkcBuffer<Kind>> buffer = ilm::CreateRef<VkcBuffer<Kind>>();
         buffer->m_Allocator              = m_Allocator;
         buffer->m_DebugName              = m_DebugName;
-        buffer->m_Binding                = m_Binding;
-        buffer->m_Offset                 = m_Offset;
         buffer->m_Size                   = m_Size;
 
         if (vmaCreateBufferWithAlignment(
@@ -64,32 +62,7 @@ namespace vkc
             return nullptr;
         }
 
-        //
-        // Descriptor set creation
-        //
-
-        VkDescriptorBufferInfo dstInfo{};
-        dstInfo.buffer = buffer->m_Buffer;
-        dstInfo.offset = m_Offset;
-        dstInfo.range  = m_Size;
-
-        // TODO(Adam): Maybe get this to follow the factory pattern too?
-        ilm::Ref<VkcDescriptorBuilder> dstBuilder = VkcDescriptorBuilder::Create(m_DstAllocator, m_DstLayoutCache);
-        dstBuilder->BindBuffer(m_Binding, dstInfo, Traits::DescriptorType);
-        if (!dstBuilder->Build(buffer->m_DstSet))
-        {
-            vkc::Error("Failed to allocate descriptor sets for buffer '{0}'!", m_DebugName);
-            return nullptr;
-        }
-
-        vkc::Success(
-            "Created buffer '{0}' of type '{1}' (binding = {2}, offset = {3}, size = {4}).",
-            m_DebugName,
-            Traits::KindName,
-            m_Binding,
-            m_Offset,
-            m_Size
-        );
+        vkc::Success("Created buffer (name = '{0}', type = '{1}', size = {2}B).", m_DebugName, Traits::KindName, m_Size);
         return buffer;
     }
 }  // namespace vkc

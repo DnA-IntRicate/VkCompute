@@ -19,27 +19,19 @@ int main(int argc, char** argv)
     g_Instance.Initialize("VkCompute-Demo");
     const auto& device = g_Instance.GetDevice();
 
-    // Test creating a new dst set builder
-    ilm::Ref dstAllocator   = VkcDescriptorAllocator::Create(device);
-    ilm::Ref dstLayoutCache = VkcDescriptorLayoutCache::Create(device);
-
     // Shader creation test
     ilm::Ref demoShader = VkcShader::Create(device, "ComputeDemo.glsl");
     vkc::Warn("Shader valid: {0}", demoShader->Valid());
 
     // The buffer creation pattern we want
     ilm::Ref<VkcUniformBuffer> buffer = VkcUniformBufferFactory()
-                                     .SetName("SampleBuffer")
-                                     .SetAllocator(g_Instance.GetAllocator())
-                                     .SetDevice(device)
-                                     .SetMemoryUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
-                                     .SetQueueFamilies({ *device->GetQueueFamilyIndices().Compute })
-                                     .SetDescriptorAllocator(dstAllocator)
-                                     .SetDescriptorLayoutCache(dstLayoutCache)
-                                     .SetBinding(0)
-                                     .SetOffset(0)
-                                     .SetSize(48)
-                                     .Create();
+                                            .SetName("SampleBuffer")
+                                            .SetDevice(device)
+                                            .SetAllocator(g_Instance.GetAllocator())
+                                            .SetMemoryUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+                                            .SetQueueFamilies({ *device->GetQueueFamilyIndices().Compute })
+                                            .SetSize(48)
+                                            .Create();
 
     if (!buffer)
     {
@@ -49,10 +41,8 @@ int main(int argc, char** argv)
     std::vector<unsigned char> v(48, 1);
     buffer->MapData((void*)v.data(), v.size());
 
-    buffer         = nullptr;
-    dstLayoutCache = nullptr;
-    dstAllocator   = nullptr;
-    demoShader     = nullptr;
+    buffer     = nullptr;
+    demoShader = nullptr;
     g_Instance.Shutdown();
 
     return 0;
