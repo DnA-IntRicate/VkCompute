@@ -69,7 +69,7 @@ namespace vkc
         // Success
         if (err == VK_SUCCESS)
         {
-            outDstAlloc = VkcDescriptorSetAllocation(set, dstSetInfo.descriptorPool);
+            outDstAlloc = VkcDescriptorSetAllocation(set, layout, dstSetInfo.descriptorPool);
             return true;
         }
 
