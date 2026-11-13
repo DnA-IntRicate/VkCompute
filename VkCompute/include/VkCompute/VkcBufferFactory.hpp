@@ -224,35 +224,6 @@ namespace vkc
         }
 
         /**
-         * @brief Sets the descriptor binding associated with the buffer.
-         *
-         * @param binding Binding index within the descriptor set layout.
-         *
-         * @return Reference to this factory for method chaining.
-         */
-        constexpr VkcBufferFactory& SetBinding(size_t binding) noexcept
-        {
-            m_Binding = binding;
-            return *this;
-        }
-
-        /**
-         * @brief Sets the descriptor offset into the buffer.
-         *
-         * @param offset Byte offset from the beginning of the buffer.
-         *
-         * @return Reference to this factory for method chaining.
-         *
-         * @note The offset must satisfy the minimum alignment requirement of the
-         *       selected buffer kind and physical device.
-         */
-        constexpr VkcBufferFactory& SetOffset(size_t offset) noexcept
-        {
-            m_Offset = offset;
-            return *this;
-        }
-
-        /**
          * @brief Sets the buffer size in bytes.
          *
          * @param size Size of the buffer allocation in bytes.
@@ -280,17 +251,23 @@ namespace vkc
         ilm::Ref<VkcBuffer<Kind>> Create() const noexcept;
 
     private:
+        // Debug name assigned to the buffer being created.
         std::string m_DebugName;
+
+        // The reference to the logical device to create the buffer for.
         ilm::Ref<VkcDevice> m_Device;
 
+        // VMA allocator used to manage the buffer allocation.
         VmaAllocator m_Allocator = nullptr;
-        VmaMemoryUsage m_Usage   = VMA_MEMORY_USAGE_AUTO;
 
+        // The VMA memory usage type.
+        VmaMemoryUsage m_Usage = VMA_MEMORY_USAGE_AUTO;
+
+        // The vector of queue family indices this buffer must be shared across.
         std::vector<uint32_t> m_QueueFamilies;
 
-        size_t m_Binding = 0;
-        size_t m_Offset  = 0;
-        size_t m_Size    = 0;
+        // The size in bytes of this buffer.
+        size_t m_Size = 0;
     };
 
     // Explicit instantiation declarations to avoid redundancies in including TUs

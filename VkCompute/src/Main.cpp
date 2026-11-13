@@ -30,8 +30,6 @@ int main(int argc, char** argv)
                                             .SetAllocator(g_Instance.GetAllocator())
                                             .SetMemoryUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
                                             .SetQueueFamilies({ *device->GetQueueFamilyIndices().Compute })
-                                            .SetBinding(0)
-                                            .SetOffset(0)
                                             .SetSize(48)
                                             .Create();
 

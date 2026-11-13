@@ -46,8 +46,6 @@ namespace vkc
         ilm::Ref<VkcBuffer<Kind>> buffer = ilm::CreateRef<VkcBuffer<Kind>>();
         buffer->m_Allocator              = m_Allocator;
         buffer->m_DebugName              = m_DebugName;
-        buffer->m_Binding                = m_Binding;
-        buffer->m_Offset                 = m_Offset;
         buffer->m_Size                   = m_Size;
 
         if (vmaCreateBufferWithAlignment(
@@ -65,14 +63,7 @@ namespace vkc
             return nullptr;
         }
 
-        vkc::Success(
-            "Created buffer '{0}' of type '{1}' (binding = {2}, offset = {3}, size = {4}).",
-            m_DebugName,
-            Traits::KindName,
-            m_Binding,
-            m_Offset,
-            m_Size
-        );
+        vkc::Success("Created buffer (name = '{0}', type = '{1}', size = {2}B).", m_DebugName, Traits::KindName, m_Size);
         return buffer;
     }
 }  // namespace vkc
