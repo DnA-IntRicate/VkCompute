@@ -28,6 +28,8 @@ namespace vkc
         ilm::Ref<VkcPipeline<Kind>> pipeline = ilm::CreateRef<VkcPipeline<Kind>>();
         pipeline->m_DebugName                = m_DebugName;
         pipeline->m_Shader                   = m_Shader;
+        pipeline->m_Device                   = m_Shader->GetDevice();
+        pipeline->m_DstAllocator             = m_DstAllocator;
 
         VkPipelineLayout& pipelineLayout = pipeline->m_PipelineLayout;
         VkPipeline& pipelineHandle       = pipeline->m_Pipeline;

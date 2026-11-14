@@ -17,10 +17,12 @@ namespace vkc
     {
     public:
         constexpr VkcPipeline() = default;
-        ~VkcPipeline() noexcept
-        {
-            // TODO(Adam): Impl!
-        }
+        ~VkcPipeline() noexcept;
+
+        /**
+         * @brief Destroys this pipeline. 
+         */
+        void Destroy() noexcept;
 
     private:
         VkPipeline m_Pipeline             = nullptr;
@@ -29,12 +31,19 @@ namespace vkc
         std::string m_DebugName;
 
         ilm::Ref<VkcShader> m_Shader;
+        ilm::Ref<VkcDevice> m_Device;
 
+        ilm::Ref<VkcDescriptorAllocator> m_DstAllocator;
         std::vector<VkcDescriptorSetAllocation> m_DstSetAllocations;
 
     private:
         friend class VkcPipelineFactory<Kind>;
     };
+
+    // Explicit instantiation declarations to avoid redundancies in including TUs
+    // since this templated-class splits contains implementation in a source file.
+    extern template class VkcPipeline<VkcPipelineKind::Compute>;
+    extern template class VkcPipeline<VkcPipelineKind::Graphics>;
 
     /** @brief Convenience alias for a compute pipeline. */
     typedef VkcPipeline<VkcPipelineKind::Compute> VkcComputePipeline;
