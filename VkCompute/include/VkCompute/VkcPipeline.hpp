@@ -1,5 +1,5 @@
 #pragma once
-// #include "VkcBuffer.hpp"
+#include "VkcDescriptorAllocator.hpp"
 #include "VkcPipelineFactory.hpp"
 #include "VkcShader.hpp"
 #include <Ilm/Ilm.hpp>
@@ -30,6 +30,8 @@ namespace vkc
 
         ilm::Ref<VkcShader> m_Shader;
 
+        std::vector<VkcDescriptorSetAllocation> m_DstSetAllocations;
+
     private:
         friend class VkcPipelineFactory<Kind>;
     };
@@ -37,4 +39,6 @@ namespace vkc
     /** @brief Convenience alias for a compute pipeline. */
     typedef VkcPipeline<VkcPipelineKind::Compute> VkcComputePipeline;
 
+    /** @brief Convenience alias for a graphics pipeline. */
+    typedef VkcPipeline<VkcPipelineKind::Graphics> VkcGraphicsPipeline;
 }  // namespace vkc

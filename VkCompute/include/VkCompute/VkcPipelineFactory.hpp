@@ -60,13 +60,13 @@ namespace vkc
         constexpr VkcPipelineInput() = default;
 
         ResourceType Resource;
-        // size_t Binding = 0;
         size_t Offset = 0;
     };
 
     template <VkcPipelineKind Kind>
     class VkcPipeline;
 
+    // TODO(Adam): Add support for push constants!
     template <VkcPipelineKind Kind>
     class VkcPipelineFactory
     {
@@ -112,23 +112,13 @@ namespace vkc
             return *this;
         }
 
-        // TODO(Adam): I don't like the binding + offset being defined in the buffer
-        // I think it should rather be defined HERE during pipeline creation!
-        template <VkcBufferKind Kind>
-        constexpr VkcPipelineFactory& SetInput(const ilm::Ref<VkcBuffer<Kind>>& input, size_t binding, size_t offset = 0) noexcept
+        template <VkcBufferKind BufferKind>
+        constexpr VkcPipelineFactory& SetInput(const ilm::Ref<VkcBuffer<BufferKind>>& input, size_t binding, size_t offset = 0) noexcept
         {
             SetInputImpl(input, binding, offset);
             return *this;
         }
-
-        // constexpr VkcPipelineFactory& SetInput(const ilm::Ref<VkcUniformBuffer>& input, size_t binding, size_t offset = 0) noexcept
-        // {
-        //     SetInputImpl(input, binding, offset);
-        //     return *this;
-        // }
-
-        // TODO: Add support for push constants!
-
+        
         ilm::Ref<VkcPipeline<Kind>> Create() const noexcept;
 
     private:
@@ -150,7 +140,7 @@ namespace vkc
         ilm::Ref<VkcDescriptorAllocator> m_DstAllocator;
         ilm::Ref<VkcDescriptorLayoutCache> m_DstCache;
 
-        // Maps bindings dst set bindings to their inputs
+        // Maps dst set bindings to their inputs
         std::vector<std::vector<VkcPipelineInput>> m_Inputs;
     };
 
@@ -164,5 +154,4 @@ namespace vkc
 
     /** @brief Convenience alias for a graphics pipeline factory. */
     typedef VkcPipelineFactory<VkcPipelineKind::Graphics> VkcGraphicsPipelineFactory;
-
 }  // namespace vkc

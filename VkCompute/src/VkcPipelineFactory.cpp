@@ -11,19 +11,35 @@ namespace vkc
     template class VkcPipelineFactory<VkcPipelineKind::Compute>;
     template class VkcPipelineFactory<VkcPipelineKind::Graphics>;
 
-    // TODO: This must be specialized for either pipeline!
-    // Because of the separate creation structs for Graphics & Compute pipelines
-
     template <VkcPipelineKind Kind>
     ilm::Ref<VkcPipeline<Kind>> VkcPipelineFactory<Kind>::Create() const noexcept
     {
+        // Graphics is not currently supported!
+        if constexpr (Kind == VkcPipelineKind::Graphics)
+        {
+            vkc::Critical("Graphics pipelines are not currently supported!");
+            return nullptr;
+        }
+
+        //
+        // VkcPipeline object creation
+        //
+
+        ilm::Ref<VkcPipeline<Kind>> pipeline = ilm::CreateRef<VkcPipeline<Kind>>();
+        pipeline->m_DebugName                = m_DebugName;
+        pipeline->m_Shader                   = m_Shader;
+
+        VkPipelineLayout& pipelineLayout = pipeline->m_PipelineLayout;
+        VkPipeline& pipelineHandle       = pipeline->m_Pipeline;
+
         //
         // Descriptor set creation
         //
 
-        std::vector<VkcDescriptorSetAllocation> dstSetAllocations(m_Inputs.size());
-        std::vector<VkDescriptorSetLayout> dstSetLayouts(m_Inputs.size());
+        std::vector<VkcDescriptorSetAllocation>& dstSetAllocations = pipeline->m_DstSetAllocations;
+        dstSetAllocations.resize(m_Inputs.size());
 
+        std::vector<VkDescriptorSetLayout> dstSetLayouts(m_Inputs.size());
         for (const auto& [binding, input] : std::views::enumerate(m_Inputs))
         {
             VkcDescriptorBuilder dstBuilder(m_DstAllocator, m_DstCache);
@@ -31,15 +47,9 @@ namespace vkc
                 dstBuilder.BindBuffer(binding, offset, resource);
 
             VkcDescriptorSetAllocation dstAlloc = dstBuilder.Build();
-            dstSetAllocations[binding] = dstAlloc;
-            dstSetLayouts[binding] = dstAlloc.Layout;
+            dstSetAllocations[binding]          = dstAlloc;
+            dstSetLayouts[binding]              = dstAlloc.Layout;
         }
-
-        // NOTE(Adam): The dst sets must be stored somewhere so that they can be updated/freed
-        // It should probably belong to the pipeline!
-        ilm::Ref<VkcPipeline<Kind>> pipeline = ilm::CreateRef<VkcPipeline<Kind>>();
-        pipeline->m_DebugName                = m_DebugName;
-        // TODO: Assign dsts to pipeline here
 
         //
         // Pipeline layout creation
@@ -55,7 +65,7 @@ namespace vkc
         layoutInfo.pPushConstantRanges    = nullptr;
 
         const auto& device = m_Shader->GetDevice()->GetDevice();
-        if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &pipeline->m_PipelineLayout) != VK_SUCCESS)
+        if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
         {
             vkc::Error("Failed to create pipeline layout for pipeline '{0}'!", m_DebugName);
             return nullptr;
@@ -79,12 +89,12 @@ namespace vkc
         pipelineInfo.pNext              = nullptr;
         pipelineInfo.flags              = 0;
         pipelineInfo.stage              = shaderStageInfo;
-        pipelineInfo.layout             = pipeline->m_PipelineLayout;
+        pipelineInfo.layout             = pipelineLayout;
         pipelineInfo.basePipelineHandle = nullptr;
         pipelineInfo.basePipelineIndex  = 0;
 
         // TODO(Adam): Use VkPipelineCache?
-        if (vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipeline->m_Pipeline) != VK_SUCCESS)
+        if (vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipelineHandle) != VK_SUCCESS)
         {
             vkc::Error("Failed to create pipeline '{0}'!", m_DebugName);
             return nullptr;
