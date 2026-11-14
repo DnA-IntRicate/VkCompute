@@ -91,7 +91,7 @@ namespace vkc
         return AllocateSet(layout, outDstAlloc);
     }
 
-    bool VkcDescriptorAllocator::FreeSet(VkcDescriptorSetAllocation& dstAlloc) noexcept
+    bool VkcDescriptorAllocator::FreeSet(const VkcDescriptorSetAllocation& dstAlloc) noexcept
     {
         return vkFreeDescriptorSets(m_Device->GetDevice(), dstAlloc.PoolHandle, 1, &dstAlloc.DescriptorSet) == VK_SUCCESS;
     }
@@ -146,6 +146,6 @@ namespace vkc
             return VK_SUCCESS;
         }
 
-        return CreatePool(0, outPool);
+        return CreatePool(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT, outPool);
     }
 }  // namespace vkc
