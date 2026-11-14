@@ -34,7 +34,7 @@ namespace vkc
         /**
          * @brief Checks for validity.
          */
-        constexpr operator bool() const noexcept { return (bool)DescriptorSet && (bool)PoolHandle; }
+        constexpr operator bool() const noexcept { return (bool)DescriptorSet && (bool)Layout && (bool)PoolHandle; }
 
         /**
          * @brief Checks for equality between this instance and other.
@@ -115,7 +115,7 @@ namespace vkc
          *
          * @returns True if the set was successfully free'd, false otherwise.
          */
-        bool FreeSet(VkcDescriptorSetAllocation& dstAlloc) noexcept;
+        bool FreeSet(const VkcDescriptorSetAllocation& dstAlloc) noexcept;
 
         /**
          * @brief Resets all active & marks them as free pools.
