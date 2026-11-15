@@ -17,26 +17,46 @@ namespace vkc
     class VkcPipeline
     {
     public:
+        /**
+         * @brief
+         */
         static constexpr std::string_view Name = "VkcPipeline";
 
+        /**
+         * @brief
+         */
         static constexpr VkcPipelineKind PipelineKind = Kind;
 
     public:
+        /**
+         * @brief
+         */
         constexpr VkcPipeline() = default;
+
+        /**
+         * @brief
+         */
         ~VkcPipeline() noexcept;
 
         // Allow copy-assignment by ilm::Ref only
-        constexpr VkcPipeline(const VkcPipeline&)          = delete;
+        constexpr VkcPipeline(const VkcPipeline&)            = delete;
         constexpr VkcPipeline& operator=(const VkcPipeline&) = delete;
 
         // Allow move-assignment by ilm::Ref only
-        constexpr VkcPipeline(VkcPipeline&&)        = delete;
+        constexpr VkcPipeline(VkcPipeline&&)            = delete;
         constexpr VkcPipeline& operator=(VkcPipeline&&) = delete;
 
         /**
-         * @brief Destroys this pipeline. 
+         * @brief Destroys this pipeline.
          */
         void Destroy() noexcept;
+
+        /**
+         * @brief Gets the debug name assigned to this pipeline.
+         *
+         * @return Constant reference to the pipeline's debug name.
+         */
+        constexpr const std::string& GetName() const noexcept { return m_DebugName; }
 
         /**
          * @brief Gets the logical device associated with this pipeline.
@@ -46,13 +66,39 @@ namespace vkc
         constexpr ilm::Ref<VkcDevice> GetDevice() const noexcept { return m_Device; }
 
         /**
-         * @brief Gets the debug name assigned to this pipeline.
-         *
-         * @return Constant reference to the pipeline's debug name.
+         * @brief
          */
-        constexpr const std::string& GetName() const noexcept { return m_DebugName; }
+        constexpr ilm::Ref<VkcShader> GetShader() const noexcept { return m_Shader; }
 
-        /** @brief */
+        /**
+         * @brief
+         */
+        constexpr const std::vector<VkcDescriptorSetAllocation>& GetDescriptorSetAllocations() const noexcept
+        {
+            return m_DstSetAllocations;
+        }
+
+        /**
+         * @brief
+         */
+        constexpr const VkcDescriptorSetAllocation& GetDescriptorSetAllocation(uint32_t binding) const noexcept
+        {
+            return m_DstSetAllocations[binding];
+        }
+
+        /**
+         * @brief
+         */
+        constexpr VkPipeline GetPipeline() const noexcept { return m_Pipeline; }
+
+        /**
+         * @brief
+         */
+        constexpr VkPipelineLayout GetPipelineLayout() const noexcept { return m_PipelineLayout; }
+
+        /**
+         * @brief
+         */
         constexpr bool Valid() const noexcept { return (bool)m_Pipeline && (bool)m_PipelineLayout; }
 
     private:
