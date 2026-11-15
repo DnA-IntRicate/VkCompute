@@ -1,8 +1,10 @@
 #pragma once
 #include "VkcBufferFactory.hpp"
+#include <Ilm/Ilm.hpp>
 #include <vma/vk_mem_alloc.h>
 #include <vulkan/vulkan_core.h>
 #include <string_view>
+#include <variant>
 
 
 namespace vkc
@@ -309,4 +311,7 @@ namespace vkc
 
     /** @brief Convenience alias for a uniform buffer. */
     typedef VkcBuffer<VkcBufferKind::UniformBuffer> VkcUniformBuffer;
+
+    /** @brief Tagged-union of all the possible descriptor-bound buffer resource inputs for a pipeline. */
+    typedef std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>> VkcDescriptorBufferResource;
 }  // namespace vkc

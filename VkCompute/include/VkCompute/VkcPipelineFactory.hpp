@@ -47,19 +47,14 @@ namespace vkc
 
     struct VkcPipelineInput
     {
-        /** @brief A variant over the possible shader resource inputs for a pipeline. */
-        // TODO(Adam): This exact type is used here AND by the dst builder, maybe we should typedef this somewhere else
-        // Probably in VkcBuffer?
-        using ResourceType = std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>>;
-
-        constexpr VkcPipelineInput(const ResourceType& res, size_t offset) noexcept
+        constexpr VkcPipelineInput(const VkcDescriptorBufferResource& res, size_t offset) noexcept
             : Resource(res), Offset(offset)
         {
         }
 
         constexpr VkcPipelineInput() = default;
 
-        ResourceType Resource;
+        VkcDescriptorBufferResource Resource;
         size_t Offset = 0;
     };
 
@@ -122,7 +117,7 @@ namespace vkc
         ilm::Ref<VkcPipeline<Kind>> Create() const noexcept;
 
     private:
-        constexpr void SetInputImpl(const VkcPipelineInput::ResourceType& res, size_t binding, size_t offset) noexcept
+        constexpr void SetInputImpl(const VkcDescriptorBufferResource& res, size_t binding, size_t offset) noexcept
         {
             if (m_Inputs.size() <= binding)
                 m_Inputs.resize(binding + 1);

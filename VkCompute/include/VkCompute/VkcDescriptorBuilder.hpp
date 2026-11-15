@@ -22,11 +22,6 @@ namespace vkc
     {
     public:
         /**
-         * @brief Tagged-union of all possible buffer resources that can be bound by this descriptor Builder.
-         */
-        using BufferResource = std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>>;
-
-        /**
          * @brief Human-readable name identifying this type.
          */
         static constexpr std::string_view Name = "VkcDescriptorBuilder";
@@ -78,7 +73,7 @@ namespace vkc
          * @param offset Offset range within the descriptor set layout.
          * @param buffer The buffer resource to bind.
          */
-        void BindBuffer(uint32_t binding, size_t offset, const BufferResource& buffer) noexcept;
+        void BindBuffer(uint32_t binding, size_t offset, const VkcDescriptorBufferResource& buffer) noexcept;
 
         /**
          * @brief Builds and allocates a descriptor set.
