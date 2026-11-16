@@ -54,6 +54,16 @@ namespace vkc
         }
 
         //
+        // Push-constant range creation
+        //
+        const bool hasPcBuffer = m_PcSize.has_value();
+
+        VkPushConstantRange pcRange{};
+        pcRange.stageFlags = Traits::StageFlags;
+        pcRange.offset     = m_PcOffset;
+        pcRange.size       = m_PcSize.value_or(0);
+
+        //
         // Pipeline layout creation
         //
 
@@ -63,8 +73,8 @@ namespace vkc
         layoutInfo.flags                  = 0;
         layoutInfo.setLayoutCount         = static_cast<uint32_t>(dstSetLayouts.size());
         layoutInfo.pSetLayouts            = dstSetLayouts.data();
-        layoutInfo.pushConstantRangeCount = 0;
-        layoutInfo.pPushConstantRanges    = nullptr;
+        layoutInfo.pushConstantRangeCount = hasPcBuffer ? 1 : 0;
+        layoutInfo.pPushConstantRanges    = hasPcBuffer ? &pcRange : nullptr;
 
         const auto& device = m_Shader->GetDevice()->GetDevice();
         if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)

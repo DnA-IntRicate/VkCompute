@@ -1,6 +1,13 @@
 #version 450
 
-layout (binding = 0) uniform ParameterUBO {
+layout(push_constant) uniform Params
+{
+    uint count;
+    float scale;
+} pc;
+
+layout (binding = 0) uniform ParameterUBO
+{
     float deltaTime;
 } ubo;
 

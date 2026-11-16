@@ -5,6 +5,7 @@
 #include "VkcShader.hpp"
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -57,6 +58,9 @@ namespace vkc
 
         /** @brief The Vulkan pipeline bind-point. */
         static constexpr VkPipelineBindPoint BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+
+        /** @brief The Vulkan shader stage flags. */
+        static constexpr VkShaderStageFlags StageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     };
 
     /**
@@ -72,6 +76,9 @@ namespace vkc
 
         /** @brief The Vulkan pipeline bind-point. */
         static constexpr VkPipelineBindPoint BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+        /** @brief The Vulkan shader stage flags. */
+        static constexpr VkShaderStageFlags StageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     };
 
     /**
@@ -200,6 +207,27 @@ namespace vkc
         }
 
         /**
+         * @brief Configures the push-constant range associated with the pipeline.
+         *
+         * Specifies the size and byte offset of the push-constant range exposed
+         * to shader stages through this pipeline's layout.
+         *
+         * @param size Size of the push-constant range in bytes.
+         * @param offset Byte offset into the push-constant block. Defaults to zero.
+         *
+         * @return Reference to this factory for method chaining.
+         *
+         * @note The specified range must satisfy Vulkan's push-constant alignment
+         *       and device-limit requirements.
+         */
+        constexpr VkcPipelineFactory& SetPushConstantRange(uint32_t size, uint32_t offset = 0) noexcept
+        {
+            m_PcSize   = size;
+            m_PcOffset = offset;
+            return *this;
+        }
+
+        /**
          * @brief Binds a buffer resource to a pipeline descriptor binding.
          *
          * Associates the specified buffer with a descriptor binding and
@@ -254,6 +282,12 @@ namespace vkc
 
         // Maps descriptor binding indices to their associated inputs.
         std::vector<std::vector<VkcPipelineInput>> m_Inputs;
+
+        // Push constant buffer size (optional).
+        std::optional<uint32_t> m_PcSize = std::nullopt;
+
+        // Push constant buffer offset (optional).
+        uint32_t m_PcOffset = 0;
     };
 
     // Explicit instantiation declarations to avoid redundancies in including TUs
