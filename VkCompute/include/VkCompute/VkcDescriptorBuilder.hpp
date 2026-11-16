@@ -6,7 +6,6 @@
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 
@@ -21,14 +20,7 @@ namespace vkc
     class VkcDescriptorBuilder
     {
     public:
-        /**
-         * @brief Tagged-union of all possible buffer resources that can be bound by this descriptor Builder.
-         */
-        using BufferResource = std::variant<ilm::Ref<VkcStorageBuffer>, ilm::Ref<VkcUniformBuffer>>;
-
-        /**
-         * @brief Human-readable name identifying this type.
-         */
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcDescriptorBuilder";
 
     public:
@@ -78,7 +70,7 @@ namespace vkc
          * @param offset Offset range within the descriptor set layout.
          * @param buffer The buffer resource to bind.
          */
-        void BindBuffer(uint32_t binding, size_t offset, const BufferResource& buffer) noexcept;
+        void BindBuffer(uint32_t binding, size_t offset, const VkcDescriptorBufferResource& buffer) noexcept;
 
         /**
          * @brief Builds and allocates a descriptor set.

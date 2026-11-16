@@ -1,6 +1,5 @@
 #include <VkCompute/VkcBufferFactory.hpp>
 #include <VkCompute/VkcBuffer.hpp>
-#include <VkCompute/Assert.hpp>
 #include <VkCompute/Log.hpp>
 #include <VkCompute/VkcBuffer.hpp>
 
@@ -59,11 +58,11 @@ namespace vkc
             )
             != VK_SUCCESS)
         {
-            vkc::Error("Failed to create buffer '{0}'!", m_DebugName);
+            vkc::Error("Failed to create buffer (name = '{0}', type = {1}, size = {2}B)!", m_DebugName, Traits::KindName, m_Size);
             return nullptr;
         }
 
-        vkc::Success("Created buffer (name = '{0}', type = '{1}', size = {2}B).", m_DebugName, Traits::KindName, m_Size);
+        vkc::Success("Created buffer (name = '{0}', type = {1}, size = {2}B).", m_DebugName, Traits::KindName, m_Size);
         return buffer;
     }
 }  // namespace vkc

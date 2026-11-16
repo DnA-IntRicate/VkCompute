@@ -71,6 +71,7 @@ namespace vkc
     class VkcDescriptorAllocator
     {
     public:
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcDescriptorAllocator";
 
     public:

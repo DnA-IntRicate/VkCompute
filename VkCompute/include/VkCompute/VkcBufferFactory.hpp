@@ -15,8 +15,6 @@ namespace vkc
      *
      * Determines how a @ref VkcBuffer is created, including its Vulkan buffer usage flags,
      * descriptor type, and minimum offset alignment requirements.
-     *
-     * Each supported buffer kind has a corresponding specialization of @ref VkcBufferTraits.
      */
     enum class VkcBufferKind
     {
@@ -38,7 +36,7 @@ namespace vkc
      *
      * This traits template is specialized for each supported @ref VkcBufferKind.
      *
-     * @tparam Kind The buffer kind for which traits are provided.
+     * @tparam Kind The buffer kind for which traits are defined.
      */
     template <VkcBufferKind Kind>
     struct VkcBufferTraits
@@ -138,8 +136,6 @@ namespace vkc
     public:
         /**
          * @brief Constructs an empty buffer factory.
-         *
-         * All configuration fields are initialized to their respective defaults.
          */
         constexpr VkcBufferFactory() = default;
 
@@ -247,6 +243,8 @@ namespace vkc
          * @return Reference to the created buffer, or nullptr if creation fails.
          *
          * @warning All required configuration must be valid before calling this method.
+         *
+         * @note The factory configuration is not modified by this operation.
          */
         ilm::Ref<VkcBuffer<Kind>> Create() const noexcept;
 
@@ -271,7 +269,7 @@ namespace vkc
     };
 
     // Explicit instantiation declarations to avoid redundancies in including TUs
-    // since this templated-class splits contains implementation in a source file.
+    // since this templated-class contains implementation in a source file.
     extern template class VkcBufferFactory<VkcBufferKind::StorageBuffer>;
     extern template class VkcBufferFactory<VkcBufferKind::UniformBuffer>;
 

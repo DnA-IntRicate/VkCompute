@@ -4,6 +4,7 @@
 #include "VkcDescriptorBuilder.hpp"
 #include "VkcDescriptorLayoutCache.hpp"
 #include "VkcDevice.hpp"
+#include "VkcPipeline.hpp"
 #include "VkcShader.hpp"
 #include "VkcObject.hpp"
 #include <cstdint>
@@ -98,10 +99,12 @@ namespace vkc
      * generic resource management, and other template-based operations.
      */
     using VkcAllObjects = VkcObjectGroup<
+        VkcComputePipeline,
         VkcDescriptorAllocator,
         VkcDescriptorBuilder,
         VkcDescriptorLayoutCache,
         VkcDevice,
+        VkcGraphicsPipeline,
         VkcShader,
         VkcStorageBuffer,
         VkcUniformBuffer
@@ -115,8 +118,10 @@ namespace vkc
      * associated with through their GetDevice() member function.
      */
     using VkcDeviceOwningObjects = VkcDeviceOwningObjectGroup<
+        VkcComputePipeline,
         VkcDescriptorAllocator,
         VkcDescriptorLayoutCache,
+        VkcGraphicsPipeline,
         VkcShader
     >;
 

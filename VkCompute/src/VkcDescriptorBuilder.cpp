@@ -27,7 +27,7 @@ namespace vkc
         return res;
     }
 
-    void VkcDescriptorBuilder::BindBuffer(uint32_t binding, size_t offset, const BufferResource& buffer) noexcept
+    void VkcDescriptorBuilder::BindBuffer(uint32_t binding, size_t offset, const VkcDescriptorBufferResource& buffer) noexcept
     {
         std::visit(
             [&](auto&& bufferRef)

@@ -84,6 +84,7 @@ namespace vkc
     class VkcDescriptorLayoutCache
     {
     public:
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcDescriptorLayoutCache";
 
     public:
