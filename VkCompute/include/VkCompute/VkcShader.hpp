@@ -21,6 +21,7 @@ namespace vkc
     class VkcShader
     {
     public:
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcShader";
 
     public:

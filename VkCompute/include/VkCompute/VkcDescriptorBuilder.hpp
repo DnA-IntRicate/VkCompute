@@ -6,7 +6,6 @@
 #include <Ilm/Ilm.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 
@@ -21,9 +20,7 @@ namespace vkc
     class VkcDescriptorBuilder
     {
     public:
-        /**
-         * @brief Human-readable name identifying this type.
-         */
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcDescriptorBuilder";
 
     public:

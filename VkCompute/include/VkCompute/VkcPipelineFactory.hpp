@@ -7,24 +7,48 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 
 namespace vkc
 {
+    /**
+     * @brief Specifies the type of Vulkan pipeline.
+     *
+     * Determines how a @ref VkcPipeline is created.
+     */
     enum class VkcPipelineKind
     {
+        /** @brief No pipeline kind specified. Not a valid kind for VkcPipeline or VkcPipelineFactory. */
         None = 0,
+
+        /** @brief Compute pipeline. */
         Compute,
+
+        /** @brief Graphics pipeline. */
         Graphics
     };
 
+    template <VkcPipelineKind Kind>
+    class VkcPipeline;
+
+    /**
+     * @brief Provides compile-time Vulkan properties for a pipeline kind.
+     *
+     * This traits template is specialized for each supported @ref VkcPipelineKind.
+     *
+     * @tparam Kind The pipeline kind for which traits are defined.
+     */
     template <VkcPipelineKind Kind>
     struct VkcPipelineTraits
     {
     };
 
+    /**
+     * @brief Traits specialization for Vulkan compute pipelines.
+     *
+     * Provides the Vulkan properties required to create and describe a compute pipeline.
+     */
     template <>
     struct VkcPipelineTraits<VkcPipelineKind::Compute>
     {
@@ -35,6 +59,11 @@ namespace vkc
         static constexpr VkPipelineBindPoint BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
     };
 
+    /**
+     * @brief Traits specialization for Vulkan graphics pipelines.
+     *
+     * Provides the Vulkan properties required to create and describe a graphics pipeline.
+     */
     template <>
     struct VkcPipelineTraits<VkcPipelineKind::Graphics>
     {
@@ -45,23 +74,57 @@ namespace vkc
         static constexpr VkPipelineBindPoint BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     };
 
+    /**
+     * @brief Describes a buffer resource bound as an input to a pipeline.
+     *
+     * Stores a reference to a descriptor buffer resource and the byte offset
+     * from which the resource is accessed.
+     */
     struct VkcPipelineInput
     {
+        /**
+         * @brief Constructs a pipeline input from a descriptor buffer resource.
+         *
+         * @param res Descriptor buffer resource to bind.
+         * @param offset Byte offset into the descriptor set.
+         */
         constexpr VkcPipelineInput(const VkcDescriptorBufferResource& res, size_t offset) noexcept
             : Resource(res), Offset(offset)
         {
         }
 
+        /**
+         * @brief Constructs an empty pipeline input.
+         */
         constexpr VkcPipelineInput() = default;
 
+        /** @brief Descriptor buffer resource associated with this input. */
         VkcDescriptorBufferResource Resource;
+
+        /** @brief Byte offset into the descriptor set. */
         size_t Offset = 0;
     };
 
-    template <VkcPipelineKind Kind>
-    class VkcPipeline;
-
     // TODO(Adam): Add support for push constants!
+    /**
+     * @brief Factory for configuring and creating Vulkan pipelines.
+     *
+     * VkcPipelineFactory provides a builder-style interface for configuring
+     * graphics and compute pieplines.
+     *
+     * Configuration is performed through chained setter calls, followed by
+     * a call to @ref Create.
+     *
+     * @tparam Kind Pipeline kind to create. Must not be VkcPipelineKind::None.
+     *
+     * @note VkcPipelineKind::None is explicitly rejected at compile time.
+     *
+     * @warning The factory does not independently validate that all required
+     *          configuration has been supplied.
+     *
+     * @see VkcPipeline
+     * @see VkcPipelineTraits
+     */
     template <VkcPipelineKind Kind>
     class VkcPipelineFactory
     {
@@ -72,8 +135,15 @@ namespace vkc
         using Traits = VkcPipelineTraits<Kind>;
 
     public:
+        /**
+         * @brief Constructs an empty pipeline factory.
+         */
         constexpr VkcPipelineFactory() = default;
-        ~VkcPipelineFactory()          = default;
+
+        /**
+         * @brief Destroys the factory.
+         */
+        ~VkcPipelineFactory() = default;
 
         /**
          * @brief Sets the debug name assigned to the pipeline.
@@ -88,6 +158,14 @@ namespace vkc
             return *this;
         }
 
+        /**
+         * @brief Sets the shader and entry point used by the pipeline.
+         *
+         * @param shader Reference to the shader used during pipeline creation.
+         * @param entryPoint Shader entry point to use. Defaults to "main".
+         *
+         * @return Reference to this factory for method chaining.
+         */
         constexpr VkcPipelineFactory& SetShader(const ilm::Ref<VkcShader>& shader, const std::string& entryPoint = "main") noexcept
         {
             m_Shader     = shader;
@@ -95,47 +173,86 @@ namespace vkc
             return *this;
         }
 
+        /**
+         * @brief Sets the descriptor allocator used to allocate pipeline descriptor sets.
+         *
+         * @param alloc Reference to the descriptor allocator.
+         *
+         * @return Reference to this factory for method chaining.
+         */
         constexpr VkcPipelineFactory& SetDescriptorAllocator(const ilm::Ref<VkcDescriptorAllocator>& alloc) noexcept
         {
             m_DstAllocator = alloc;
             return *this;
         }
 
+        /**
+         * @brief Sets the descriptor layout cache used to retrieve or create descriptor layouts.
+         *
+         * @param cache Reference to the descriptor layout cache.
+         *
+         * @return Reference to this factory for method chaining.
+         */
         constexpr VkcPipelineFactory& SetDescriptorLayoutCache(const ilm::Ref<VkcDescriptorLayoutCache>& cache) noexcept
         {
             m_DstCache = cache;
             return *this;
         }
 
-        template <VkcBufferKind BufferKind>
-        constexpr VkcPipelineFactory& SetInput(const ilm::Ref<VkcBuffer<BufferKind>>& input, size_t binding, size_t offset = 0) noexcept
-        {
-            SetInputImpl(input, binding, offset);
-            return *this;
-        }
-        
-        ilm::Ref<VkcPipeline<Kind>> Create() const noexcept;
-
-    private:
-        constexpr void SetInputImpl(const VkcDescriptorBufferResource& res, size_t binding, size_t offset) noexcept
+        /**
+         * @brief Binds a buffer resource to a pipeline descriptor binding.
+         *
+         * Associates the specified buffer with a descriptor binding and
+         * optionally specifies a byte offset into the descriptor set.
+         *
+         * @param input Reference to the buffer resource to bind.
+         * @param binding Descriptor binding index to associate with the buffer.
+         * @param offset Byte offset into the descriptor set. Defaults to 0.
+         *
+         * @return Reference to this factory for method chaining.
+         */
+        constexpr VkcPipelineFactory& SetInput(const VkcDescriptorBufferResource& input, size_t binding, size_t offset = 0) noexcept
         {
             if (m_Inputs.size() <= binding)
                 m_Inputs.resize(binding + 1);
 
             auto& slot = m_Inputs[binding];
-            slot.emplace_back(res, offset);
+            slot.emplace_back(input, offset);
+
+            return *this;
         }
 
+        /**
+         * @brief Creates a @ref VkcPipeline using the configured parameters.
+         *
+         * Constructs a pipeline of the kind specified by the factory's template
+         * parameter and returns an @ref ilm::Ref to the resulting object.
+         *
+         * @return Reference to the created pipeline, or nullptr if creation fails.
+         *
+         * @warning All required configuration must be valid before calling this method.
+         *
+         * @note The factory configuration is not modified by this operation.
+         */
+        ilm::Ref<VkcPipeline<Kind>> Create() const noexcept;
+
     private:
+        // Debug name assigned to the buffer being created.
         std::string m_DebugName;
 
+        // Shader used to create the pipeline.
         ilm::Ref<VkcShader> m_Shader;
+
+        // Shader entry point.
         std::string m_EntryPoint = "main";
 
+        // Descriptor allocator used for creating the pipeline's descriptor sets.
         ilm::Ref<VkcDescriptorAllocator> m_DstAllocator;
+
+        // Descriptor layout cache used for creating the pipeline's descriptor sets.
         ilm::Ref<VkcDescriptorLayoutCache> m_DstCache;
 
-        // Maps dst set bindings to their inputs
+        // Maps descriptor binding indices to their associated inputs.
         std::vector<std::vector<VkcPipelineInput>> m_Inputs;
     };
 

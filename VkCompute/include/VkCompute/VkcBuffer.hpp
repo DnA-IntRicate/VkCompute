@@ -27,8 +27,10 @@ namespace vkc
     class VkcBuffer
     {
     public:
+        /** @brief Human-readable name identifying this type. */
         static constexpr std::string_view Name = "VkcBuffer";
 
+        /** @brief Publicly-exposes the buffer kind. */
         static constexpr VkcBufferKind BufferKind = Kind;
 
     public:
@@ -223,21 +225,21 @@ namespace vkc
         bool Invalidate() const noexcept;
 
         /**
-         * @brief Retrieves the underlying Vulkan buffer handle.
+         * @brief Gets the underlying Vulkan buffer handle.
          *
          * @return VkBuffer handle associated with this resource.
          */
         constexpr VkBuffer GetBuffer() const noexcept { return m_Buffer; }
 
         /**
-         * @brief Retrieves the VMA allocation associated with this buffer.
+         * @brief Gets the VMA allocation associated with this buffer.
          *
          * @return VMA allocation handle.
          */
         constexpr VmaAllocation GetAllocation() const noexcept { return m_Allocation; }
 
         /**
-         * @brief Retrieves the VMA allocator associated with this buffer.
+         * @brief Gets the VMA allocator associated with this buffer.
          *
          * @return VMA allocator used to manage the buffer's memory.
          *
@@ -247,14 +249,14 @@ namespace vkc
         constexpr VmaAllocator GetAllocator() const noexcept { return m_Allocator; }
 
         /**
-         * @brief Retrieves the debug name assigned to the buffer.
+         * @brief Gets the debug name assigned to the buffer.
          *
          * @return Constant reference to the buffer's debug name.
          */
         constexpr const std::string& GetName() const noexcept { return m_DebugName; }
 
         /**
-         * @brief Retrieves the configured buffer size.
+         * @brief Gets the configured buffer size.
          *
          * @return Buffer size in bytes.
          */
