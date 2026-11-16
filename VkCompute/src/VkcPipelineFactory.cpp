@@ -69,7 +69,7 @@ namespace vkc
         const auto& device = m_Shader->GetDevice()->GetDevice();
         if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
         {
-            vkc::Error("Failed to create pipeline layout for pipeline '{0}'!", m_DebugName);
+            vkc::Error("Failed to create pipeline layout for pipeline (name = '{0}', type = {1})!", m_DebugName, Traits::KindName);
             return nullptr;
         }
 
@@ -98,13 +98,14 @@ namespace vkc
         // TODO(Adam): Use VkPipelineCache?
         if (vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipelineHandle) != VK_SUCCESS)
         {
-            vkc::Error("Failed to create pipeline '{0}'!", m_DebugName);
+            vkc::Error("Failed to create pipeline '(name = '{0}', type = {1})!", m_DebugName, Traits::KindName);
             return nullptr;
         }
 
         vkc::Success(
-            "Created compute pipeline (name = '{0}', shader = '{1}', descriptor sets = {2}).",
+            "Created pipeline (name = '{0}', type = {1}, shader = '{2}', descriptor sets = {3}).",
             m_DebugName,
+            Traits::KindName,
             m_Shader->GetName(),
             dstSetAllocations.size()
         );
