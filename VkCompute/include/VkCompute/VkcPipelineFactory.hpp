@@ -112,7 +112,6 @@ namespace vkc
         size_t Offset = 0;
     };
 
-    // TODO(Adam): Add support for push constants!
     /**
      * @brief Factory for configuring and creating Vulkan pipelines.
      *
